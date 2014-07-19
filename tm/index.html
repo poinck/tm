@@ -1,0 +1,213 @@
+<html>
+<meta charset="utf-8">
+<head>
+<link href="../c3/c3.css" rel="stylesheet" type="text/css">
+
+<script src="../d3/d3.min.js" charset="utf-8"></script>
+<script src="../c3/c3.min.js"></script>
+
+<style type="text/css">
+.legende {
+	
+}
+</style>
+
+</head>
+
+<body style="font-family: sans;">
+	<div class="legende"><b>Temperatur</b> <a onclick="toggle('innen');" id="legendeInnen" data-id="innen" href="#">Innen</a> <span id="innen">°C</span> <a onclick="toggle('aussen');" id="legendeAussen" data-id="aussen" href="#">Außen</a> <span id="aussen">°C</span> <!-- Bereich: <a id="wertebereich" onclick="wertebereich();" href="#">(alles)</a> --> </div>
+	<div id="chart"></div>
+
+<script>
+var schalterInnen = true;
+var schalterAussen = true;
+var bereich = -10;
+
+var chart = c3.generate({
+	padding: {
+        	top: 30,
+        	right: 50,
+        	bottom: 50,
+        	left: 70
+    	},
+	size: {
+        	height: 700
+       	 	// width: 480 
+    	},
+	data: {
+        	url: 'tm.csv',
+        	// type: 'area' 
+		type: 'line', 
+		// type: 'spline'
+		x: 'datum',
+		x_format: '%Y-%m-%d %H:%M:%S',
+		labels: {
+			// format: function (v, id) { if (v > 25000) return v / 1000; }
+			/*
+			format: {
+                		y: function (v, id) { console.log (); if (v > 100) return id;  }
+            		}
+			*/
+		},
+	},
+	legend: {
+        	// position: 'top'
+		show: false
+    	},
+	/*
+	subchart: {
+		show: true
+	}
+	*/
+	point: {
+		show: false
+	},
+	axis: {
+		x: {
+			type: 'timeseries',
+			localtime: true,
+			show: true,
+			label: {
+				// text: length + ' Werte',
+				position: 'outer-middle'
+			},
+			tick: {
+				fit: true,
+				format: '%d. %b %H:%M',
+				count: 7
+			}
+		},
+		y: {
+			show: true,
+			label: {
+				text: 'Temperatur in °C',
+				position: 'outer-middle'
+			},
+			tick: {
+				format: function(t) { return t / 1000; }
+			}
+		}
+	},
+	grid: {
+        	x: {
+            		show: false
+        	},
+        	y: {
+            		show: true
+        	}
+    }
+});
+
+setInterval(function () {
+    	chart.load({
+        	url: 'tm.csv'
+   	});
+	aktualisiere();
+}, 60000);
+
+function aktualisiere() {
+	i = chart.data.xs.innen.length;
+	// console.log('i = ' + i);
+	// console.log(chart.data.targets[0].values[i - 1]);
+	d3.select('#innen').text((chart.data.targets[0].values[i - 1].value / 1000).toFixed(1) + '°C');
+	d3.select('#aussen').text((chart.data.targets[1].values[i - 1].value / 1000).toFixed(1) + '°C');
+	aktualisiereAxis();
+}
+
+setTimeout(function () {
+	/*
+	chart.load({
+            	url: 'ttest.csv'
+        });
+	*/
+	d3.select('#wertebereich').text(Math.ceil(chart.data.xs.innen.length / 60) + 'h (alles)');
+	aktualisiere();
+}, 1000);
+
+function aktualisiereAxis() {
+	var valuesBereichInnen = chart.data.targets[0].values;
+
+	// debug
+	console.log(valuesBereichInnen.length);
+
+	var valuesBereichAussen = chart.data.targets[1].values;
+	if (d3.select('#wertebereich').text() == '12h') {
+		valuesBereichInnen = chart.data.targets[0].values.slice(bereich);
+		valuesBereichAussen = chart.data.targets[1].values.slice(bereich);
+	}
+        var maxValueInnen = d3.max(valuesBereichInnen, function (o) { return o.value; }) + 1000;
+	var maxValueAussen = d3.max(valuesBereichAussen, function (o) { return o.value; }) + 1000;
+	var minValueInnen = d3.min(valuesBereichInnen, function (o) { return o.value; }) - 1000;
+	var minValueAussen = d3.min(valuesBereichAussen, function (o) { return o.value; }) - 1000;
+
+	// debug
+	console.log('maxValueInnen = ' + maxValueInnen);
+	console.log('maxValueAussen = ' + maxValueAussen);
+	console.log('minValueInnen = ' + minValueInnen);
+	console.log('minValueAussen = ' + minValueAussen);
+
+	if (schalterAussen && schalterInnen) {
+		if (maxValueInnen > maxValueAussen) {
+			chart.axis.max({y: maxValueInnen});
+		} else {
+			chart.axis.max({y: maxValueAussen});
+		}
+		if (minValueInnen < minValueAussen) {
+			chart.axis.min({y: minValueInnen});
+		} else {
+			chart.axis.min({y: minValueAussen});
+		}
+	} else if (!schalterInnen) {
+		chart.axis.max({y: maxValueAussen});
+		chart.axis.min({y: minValueAussen});
+	} else if (!schalterAussen) {
+		chart.axis.max({y: maxValueInnen});
+		chart.axis.min({y: minValueInnen});
+	}
+}
+
+function wertebereich() {
+	// console.log ('anzahl = '+ chart.data.xs.innen.length);	
+	if (d3.select('#wertebereich').text() == '12h') {
+		d3.select('#wertebereich').text(Math.ceil(chart.data.xs.innen.length / 60) + 'h (alles)');
+
+		// chart.axis.min({x: function(d) { console.log(d); } });
+		chart.axis.min({x: 0});
+	} else {
+		d3.select('#wertebereich').text('12h');
+		// chart.axis.min({x: chart.data.xs.innen.length - bereich});
+		chart.axis.min({x: new Date('2014-07-19')});
+		
+	}
+	aktualisiere();
+}
+
+function toggle(l) {
+	chart.toggle(l);
+	if (l == 'innen') {
+		schalterInnen = !schalterInnen;
+	} else {
+		schalterAussen = !schalterAussen;
+	}
+	aktualisiereAxis();
+}
+
+d3.selectAll('.legende a')
+.on('mouseover', function () {
+    var id = d3.select(this).attr('data-id');
+    chart.focus(id);
+})
+.on('mouseout', function () {
+    var id = d3.select(this).attr('data-id');
+    chart.revert();
+})
+.on('click', function () {
+    var id = d3.select(this).attr('data-id');
+    chart.toggle(id);
+});
+
+</script>
+
+</body>
+
+</html>

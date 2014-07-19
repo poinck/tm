@@ -1,0 +1,37 @@
+#!/bin/bash
+
+TMLOG="$HOME/public_html/tm/tm.csv"
+TS1="/sys/bus/w1/devices/10-000802bce280/w1_slave" # innen
+TS2="/sys/bus/w1/devices/10-000802c2f07e/w1_slave" # aussen
+
+echo "Messung wird begonnen"
+while : ; do
+	T1=`cat $TS1`
+	T1VALID=`echo $T1 | grep YES | wc -l`
+	T2=`cat $TS2`
+	T2VALID=`echo $T2 | grep YES | wc -l`
+
+	# debug
+	echo $T1
+	echo $T1VALID
+	echo $T2
+	echo $T2VALID
+
+	if [ $T1VALID -eq 1 ]; then
+	if [ $T2VALID -eq 1 ]; then
+		# echo -n `date -u +%s` >> $TMLOG
+		echo -n `date +%Y-%m-%d\ %H:%M:%S` >> $TMLOG
+		echo -n "," >> $TMLOG
+		echo -n `echo $T1 | cut -d '=' -f3` >> $TMLOG
+		echo -n "," >> $TMLOG
+		echo `echo $T2 | cut -d '=' -f3` >> $TMLOG
+	fi
+	fi
+	sleep 60 
+
+	# debug
+	echo "messe"
+done
+
+echo "Messung wurde unerwartet beendet"
+
