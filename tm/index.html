@@ -7,16 +7,73 @@
 <script src="../c3/c3.min.js"></script>
 
 <style type="text/css">
+/* @import url('opensanscondensed/OpenSans-CondBold.ttf');
+@import url('opensanscondensed/OpenSans-CondBoldLight.ttf'); */
+
+@font-face {
+	font-family: "ptsr";
+	font-style: normal;
+	src: local("ptsr"), url("ptsansnarrow/PT_Sans-Narrow-Web-Regular.ttf") format("truetype");
+}
+
+@font-face {
+	font-family: "ptsb";
+	font-style: normal;
+	src: local("ptsb"), url("ptsansnarrow/PT_Sans-Narrow-Web-Bold.ttf") format("truetype");
+}
+
 .legende {
-	
+	position: absolute;
+	left: 25px;
+	top: 15px;
+	font-family: 'ptsr', sans;
+	font-size: 28px;
+}
+.diagramm {
+	position: absolute;
+	left: 0px;
+	top: 50px;
+}
+.temperatur {
+	font-family: 'ptsb', sans;
+	font-size: 28px;
+}
+.eintrag {
+	font-family: 'ptsr', sans;
+	font-size: 28px;
+	text-decoration: none;
+	padding-left: 5px;
+}
+
+.innen {
+	color: #1F77B4;
+}
+
+.aussen {
+	color: #FF7F0E;
+}
+
+.abgeschaltet {
+	color: grey;
+}
+
+.c3-line {
+	stroke-width: 1.5px;
 }
 </style>
 
 </head>
 
-<body style="font-family: sans;">
-	<div class="legende"><b>Temperatur</b> <a onclick="toggle('innen');" id="legendeInnen" data-id="innen" href="#">Innen</a> <span id="innen">°C</span> <a onclick="toggle('aussen');" id="legendeAussen" data-id="aussen" href="#">Außen</a> <span id="aussen">°C</span> <!-- Bereich: <a id="wertebereich" onclick="wertebereich();" href="#">(alles)</a> --> </div>
-	<div id="chart"></div>
+<body style="font-family: 'ptsr', sans;">
+	<div class="legende">
+		Temperatur 
+		<a class="eintrag innen" id="legendeInnen" data-id="innen" href="#">Innen</a> 
+		<span class="temperatur innen" id="innen">°C</span> 
+		<a class="eintrag aussen" id="legendeAussen" data-id="aussen" href="#">Außen</a> 
+		<span class="temperatur aussen" id="aussen">°C</span> 
+		<!-- Bereich: <a id="wertebereich" onclick="wertebereich();" href="#">(alles)</a> --> 
+	</div>
+	<div id="chart" class="diagramm"></div>
 
 <script>
 var schalterInnen = true;
@@ -25,13 +82,13 @@ var bereich = -10;
 
 var chart = c3.generate({
 	padding: {
-        	top: 30,
+        	top: 0,
         	right: 50,
         	bottom: 50,
         	left: 70
     	},
 	size: {
-        	height: 700
+        	height: 650
        	 	// width: 480 
     	},
 	data: {
@@ -73,9 +130,12 @@ var chart = c3.generate({
 			},
 			tick: {
 				fit: true,
-				format: '%d. %b %H:%M',
-				count: 7
-			}
+				format: '%a, %d. %b %H:%M',
+				count: 7,
+				// rotate: 23
+			},
+			height: 130,
+			padding: 0
 		},
 		y: {
 			show: true,
@@ -128,23 +188,23 @@ function aktualisiereAxis() {
 	var valuesBereichInnen = chart.data.targets[0].values;
 
 	// debug
-	console.log(valuesBereichInnen.length);
+	// console.log(valuesBereichInnen.length);
 
 	var valuesBereichAussen = chart.data.targets[1].values;
 	if (d3.select('#wertebereich').text() == '12h') {
 		valuesBereichInnen = chart.data.targets[0].values.slice(bereich);
 		valuesBereichAussen = chart.data.targets[1].values.slice(bereich);
 	}
-        var maxValueInnen = d3.max(valuesBereichInnen, function (o) { return o.value; }) + 1000;
+    var maxValueInnen = d3.max(valuesBereichInnen, function (o) { return o.value; }) + 1000;
 	var maxValueAussen = d3.max(valuesBereichAussen, function (o) { return o.value; }) + 1000;
 	var minValueInnen = d3.min(valuesBereichInnen, function (o) { return o.value; }) - 1000;
 	var minValueAussen = d3.min(valuesBereichAussen, function (o) { return o.value; }) - 1000;
 
 	// debug
-	console.log('maxValueInnen = ' + maxValueInnen);
-	console.log('maxValueAussen = ' + maxValueAussen);
-	console.log('minValueInnen = ' + minValueInnen);
-	console.log('minValueAussen = ' + minValueAussen);
+	// console.log('maxValueInnen = ' + maxValueInnen);
+	// console.log('maxValueAussen = ' + maxValueAussen);
+	// console.log('minValueInnen = ' + minValueInnen);
+	// console.log('minValueAussen = ' + minValueAussen);
 
 	if (schalterAussen && schalterInnen) {
 		if (maxValueInnen > maxValueAussen) {
@@ -189,7 +249,7 @@ function toggle(l) {
 	} else {
 		schalterAussen = !schalterAussen;
 	}
-	aktualisiereAxis();
+	// aktualisiereAxis();
 }
 
 d3.selectAll('.legende a')
@@ -204,6 +264,32 @@ d3.selectAll('.legende a')
 .on('click', function () {
     var id = d3.select(this).attr('data-id');
     chart.toggle(id);
+    if (id == 'innen') {
+    	schalterInnen = !schalterInnen;
+    	if (!schalterInnen) {
+			d3.selectAll('.innen').classed({'abgeschaltet': true});
+		} else {
+			d3.selectAll('.innen').classed({'abgeschaltet': false});
+		}
+    } else {
+    	// debug
+    	// console.log('aussen geklickt');
+    	// console.log('selektion = ' + d3.select('#legendeAussen').size());
+    
+    	schalterAussen = !schalterAussen;
+    	if (!schalterAussen) {
+    		// console.log('aussen aus');
+    		
+			d3.selectAll('.aussen').classed({'abgeschaltet': true});
+		} else {
+			// console.log('aussen ein');
+		
+			d3.selectAll('.aussen').classed({'abgeschaltet': false});
+		}
+		
+		// console.log('klassen = ' + d3.select('#legendeAussen').attr('class'));
+    }
+    
 });
 
 </script>
