@@ -1,8 +1,11 @@
 #!/bin/bash
 
 TMLOG="$HOME/public_html/tm/tm.csv"
+TMLOG720="$HOME/public_html/tm/tm_720.csv"
 TS1="/sys/bus/w1/devices/10-000802bce280/w1_slave" # innen
 TS2="/sys/bus/w1/devices/10-000802c2f07e/w1_slave" # aussen
+MAX_COUNT=720
+HEADER="datum,innen,aussen"
 
 echo "Messung wird begonnen"
 while : ; do
@@ -12,25 +15,54 @@ while : ; do
 	T2VALID=`echo $T2 | grep YES | wc -l`
 
 	# debug
-	echo $T1
-	echo $T1VALID
-	echo $T2
-	echo $T2VALID
+	# echo $T1
+	# echo $T1VALID
+	# echo $T2
+	# echo $T2VALID
 
 	if [ $T1VALID -eq 1 ]; then
 	if [ $T2VALID -eq 1 ]; then
-		# echo -n `date -u +%s` >> $TMLOG
 		echo -n `date +%Y-%m-%d\ %H:%M:%S` >> $TMLOG
 		echo -n "," >> $TMLOG
 		echo -n `echo $T1 | cut -d '=' -f3` >> $TMLOG
 		echo -n "," >> $TMLOG
 		echo `echo $T2 | cut -d '=' -f3` >> $TMLOG
+		
+		# ab hier rollendes Temperatur-Log
+		ZEILE="`tail -1 $TMLOG`"
+		CURRENT_COUNT=`cat $TMLOG720 | wc -l`
+	
+		# debug
+		# echo "zeile = $ZEILE"
+		# echo "anzahl (mit kopfzeile) = $CURRENT_COUNT"
+		# echo "`expr $MAX_COUNT - 1`"
+	
+		COUNT=$MAX_COUNT
+		if [ `expr $CURRENT_COUNT - 1` -lt $MAX_COUNT ]; then
+			# debug
+			# echo "current_count = $CURRENT_COUNT"
+		
+			COUNT=`expr $CURRENT_COUNT - 1`
+		fi
+	
+		if [ $COUNT -gt 0 ]; then
+			PARTIALLOG=`tail -$COUNT $TMLOG720`
+		fi
+		echo "$HEADER" > $TMLOG720
+		if [ $COUNT -gt 0 ]; then
+			echo "$PARTIALLOG" >> $TMLOG720
+		fi
+	
+		# debug
+		# cat $TMLOG720
+	
+		echo "$ZEILE" >> $TMLOG720
 	fi
 	fi
 	sleep 60 
 
 	# debug
-	echo "messe"
+	# echo "messe"
 done
 
 echo "Messung wurde unerwartet beendet"

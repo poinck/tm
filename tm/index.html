@@ -92,7 +92,7 @@ var chart = c3.generate({
        	 	// width: 480 
     	},
 	data: {
-        	url: 'tm.csv',
+        	url: 'tm_720.csv',
         	// type: 'area' 
 		type: 'line', 
 		// type: 'spline'
@@ -131,7 +131,7 @@ var chart = c3.generate({
 			tick: {
 				fit: true,
 				format: '%a, %d. %b %H:%M',
-				count: 7,
+				count: 8,
 				// rotate: 23
 			},
 			height: 130,
@@ -160,7 +160,7 @@ var chart = c3.generate({
 
 setInterval(function () {
     	chart.load({
-        	url: 'tm.csv'
+        	url: 'tm_720.csv'
    	});
 	aktualisiere();
 }, 60000);
