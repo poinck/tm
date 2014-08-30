@@ -83,13 +83,13 @@ var bereich = -10;
 var chart = c3.generate({
 	padding: {
         	top: 0,
-        	right: 50,
-        	bottom: 50,
+        	right: 70,
+        	bottom: 0,
         	left: 70
     	},
 	size: {
-        	height: 650
-       	 	// width: 480 
+        	height: 600
+       	 	// width: 1000 
     	},
 	data: {
         	url: 'tm_720.csv',
@@ -125,17 +125,19 @@ var chart = c3.generate({
 			localtime: true,
 			show: true,
 			label: {
-				// text: length + ' Werte',
-				position: 'outer-middle'
+				text: 'Datum, Uhrzeit',
+				position: 'outer-center'
 			},
 			tick: {
 				fit: true,
-				format: '%a, %d. %b %H:%M',
-				count: 8,
-				// rotate: 23
+				format: '%d.%m %H:%M', // %a, %d. %b "Sat, 30. Aug"
+				count: 2,
+				rotate: 65
 			},
 			height: 130,
-			padding: 0
+			width: 70
+			// padding: 15,
+			// margin: 15
 		},
 		y: {
 			show: true,
