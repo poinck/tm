@@ -4,29 +4,41 @@ TMLOG="$HOME/public_html/tm/tm.csv"
 TMLOG720="$HOME/public_html/tm/tm_720.csv"
 TS1="/sys/bus/w1/devices/10-000802bce280/w1_slave" # innen
 TS2="/sys/bus/w1/devices/10-000802c2f07e/w1_slave" # aussen
+WRONG_VALUE=85000 # exception for known wrong value with correct CRC
 MAX_COUNT=720
 HEADER="datum,innen,aussen"
 
 echo "Messung wird begonnen"
 while : ; do
+	# validate sensor readings
 	T1=`cat $TS1`
 	T1VALID=`echo $T1 | grep YES | wc -l`
 	T2=`cat $TS2`
 	T2VALID=`echo $T2 | grep YES | wc -l`
+	
+	# ignore known wrong value with correct CRC
+	T1VALUE=`echo $T1 | cut -d '=' -f3`
+	T2VALUE=`echo $T2 | cut -d '=' -f3`
 
 	# debug
 	# echo $T1
 	# echo $T1VALID
+	# echo "t1value = ${T1VALUE}"
 	# echo $T2
 	# echo $T2VALID
+	# echo "t2value = ${T2VALUE}"
 
+	if [ ! $T1VALUE -eq $WRONG_VALUE ]; then
+	if [ ! $T2VALUE -eq $WRONG_VALUE ]; then
 	if [ $T1VALID -eq 1 ]; then
 	if [ $T2VALID -eq 1 ]; then
 		echo -n `date +%Y-%m-%d\ %H:%M:%S` >> $TMLOG
 		echo -n "," >> $TMLOG
-		echo -n `echo $T1 | cut -d '=' -f3` >> $TMLOG
+		echo -n $T1VALUE >> $TMLOG
+		# echo -n `echo $T1 | cut -d '=' -f3` >> $TMLOG
 		echo -n "," >> $TMLOG
-		echo `echo $T2 | cut -d '=' -f3` >> $TMLOG
+		echo $T2VALUE >> $TMLOG
+		# echo `echo $T2 | cut -d '=' -f3` >> $TMLOG
 		
 		# ab hier rollendes Temperatur-Log
 		ZEILE="`tail -1 $TMLOG`"
@@ -53,16 +65,15 @@ while : ; do
 			echo "$PARTIALLOG" >> $TMLOG720
 		fi
 	
-		# debug
-		# cat $TMLOG720
-	
 		echo "$ZEILE" >> $TMLOG720
+		
+		# debug
+		# echo "new entry written to log, row = '${ZEILE}'"
+	fi
+	fi
 	fi
 	fi
 	sleep 60 
-
-	# debug
-	# echo "messe"
 done
 
 echo "Messung wurde unerwartet beendet"
