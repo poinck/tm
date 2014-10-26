@@ -67,7 +67,6 @@ class TmSum {
 				    		int month = int.parse(tmpDate[1]);
 				    		int day = int.parse(tmpDate[2]);
 				    		var time = new DateTime.utc(year, month, day, 12, 0, 0);
-				    		
 				    		sumFile_UNIX.writeLine(time.to_unix().to_string("%" + int64.FORMAT) + "," + sumEntry.minTemperatur[INNEN].to_string() + "," + sumEntry.minTemperatur[AUSSEN].to_string() + "," + sumEntry.maxTemperatur[INNEN].to_string() + "," + sumEntry.maxTemperatur[AUSSEN].to_string() + "," + sumEntry.avgTemperatur[INNEN].to_string() + "," + sumEntry.avgTemperatur[AUSSEN].to_string() + "\n");
 		        		}
 		        	
