@@ -92,7 +92,8 @@ var chart = c3.generate({
        	 	// width: 1000 
     	},
 	data: {
-        	url: 'tm_sum.csv',
+        	url: 'tm_720.csv',
+        		// TODO  add support for "tm_sum.csv"
         	// type: 'area' 
 		type: 'line', 
 		// type: 'spline'
@@ -162,8 +163,8 @@ var chart = c3.generate({
 
 setInterval(function () {
     	chart.load({
-        	// url: 'tm_720.csv'
-        	url: 'tm_sum.csv'
+        	url: 'tm_720.csv'
+        		// TODO  add support for "tm_sum.csv"
    	});
 	aktualisiere();
 }, 60000);
