@@ -1,4 +1,4 @@
 tm
 ==
 
-Temperaturmessung mit C3js
+temperature measurement
