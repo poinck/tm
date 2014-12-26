@@ -14,9 +14,17 @@ class TmSum {
 		this.sumFile = new SumFile(sumFileDir);
 		this.sumFile_UNIX = new SumFile(workDir + "/" + SumFile.TM_SUM_FILE_UNIX);
 	}
+
+	// TODO  columns should be parsed and written dynamically, except "datum" which has to the first column (think about renaming it into "date")
+	// FIXME use sqlite instead of csv (this will depricate the webfrontend written in C3js)
 	
-	// TODO  start at given date (new method-parameter) 
-	// TODO  support parameter for full generate given as application-parameter
+	// TODO  start sum generation at specific date (determined by last entry of "tm.csv"); implement dailySum()-thread
+	public int dailySum() {
+
+		return 0;
+	}
+ 
+	// FIXME use this method only for full regenerate, maybe rewrite, because current state is ugly as hell (split functionality for reuse)
 	public int generateSum() {
 		var tmFile = File.new_for_path(tmFileDir);
 		
@@ -36,8 +44,8 @@ class TmSum {
 		    TmFile.TmEntry tmEntry;
 		    
 		    stdout.printf("[TmSum] generateSum() START\n");
-		    sumFile.openFile();
-		    sumFile_UNIX.openFile(); // FIXME  delete or refactor as new solution
+		    sumFile.openFile(true); // reset = true
+		    sumFile_UNIX.openFile(true); // FIXME  delete or refactor as new solution
 		    while ((line = dis.read_line(null)) != null) {
 		        // stdout.printf("%s\n", line);
 		        tmEntry = TmFile.parseTmEntry(line);

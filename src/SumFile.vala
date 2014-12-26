@@ -27,6 +27,7 @@ public class SumFile : CsvFile {
 		            // Write text data to file
 			        var data_stream = new DataOutputStream(file_stream);
 			        data_stream.put_string ("datum,innen_min,aussen_min,innen_max,aussen_max,innen_avg,aussen_avg\n");
+						// FIXME use dynamic columns depending on tm.csv
 		        } else {
 		        	stderr.printf("[SumFile] ERROR File '%s' was not created.\n", sumFile.get_path());
 		        }
@@ -40,12 +41,26 @@ public class SumFile : CsvFile {
 	
 	public File file;
 	public FileOutputStream fos;
+	public DataOutputStream dos;
 	
-	public bool openFile() {
+	/**
+	 * opens tm_sum.csv
+	 *
+	 * @params	bool	reset	-	if true tm_sum.csv will be completely rewritten
+	 */
+	public bool openFile(bool reset) {
 		file = File.new_for_path(uri);
 		
 		try {
-			fos = file.append_to (FileCreateFlags.NONE);
+			if (reset) {
+				fos = file.create(FileCreateFlags.NONE);
+				dos = new DataOutputStream(fos);
+				dos.put_string ("datum,innen_min,aussen_min,innen_max,aussen_max,innen_avg,aussen_avg\n");
+					// FIXME use dynamic columns depending on tm.csv
+			} else {
+				fos = file.append_to(FileCreateFlags.NONE);
+			}
+			
 		} catch (Error e) {
 			stdout.printf ("Error: %s\n", e.message);
 			return false;
