@@ -20,6 +20,7 @@ class TmSum {
 	
 	// TODO  start sum generation at specific date (determined by last entry of "tm.csv"); implement dailySum()-thread
 	public int dailySum() {
+		
 
 		return 0;
 	}

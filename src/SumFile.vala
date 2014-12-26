@@ -16,7 +16,7 @@ public class SumFile : CsvFile {
 		
 		// create sumFile if it does not exist
 		if (sumFile.query_exists() == false) {
-		    stdout.printf("[SumFile] File '%s' does not exist; attempt to create it.\n", sumFile.get_path());
+		    stdout.printf("[SumFile] file '%s' does not exist; attempt to create it.\n", sumFile.get_path());
 		    
 		    try {
 				// Create a new file with this name
@@ -35,7 +35,7 @@ public class SumFile : CsvFile {
 				error("%s", e.message);
 			}
 		} else {
-			stdout.printf("[SumFile] File '%s' already exists, I will use this.\n", sumFile.get_path());
+			stdout.printf("[SumFile] file '%s' already exists, I will use this.\n", sumFile.get_path());
 		}
 	}
 	
@@ -44,7 +44,7 @@ public class SumFile : CsvFile {
 	public DataOutputStream dos;
 	
 	/**
-	 * opens tm_sum.csv
+	 * opens tm_sum.csv for writing
 	 *
 	 * @params	bool	reset	-	if true tm_sum.csv will be completely rewritten
 	 */
@@ -53,10 +53,16 @@ public class SumFile : CsvFile {
 		
 		try {
 			if (reset) {
-				fos = file.create(FileCreateFlags.NONE);
-				dos = new DataOutputStream(fos);
-				dos.put_string ("datum,innen_min,aussen_min,innen_max,aussen_max,innen_avg,aussen_avg\n");
-					// FIXME use dynamic columns depending on tm.csv
+				stdout.printf("[SumFile] reset file '%s'\n", file.get_path());
+				if (file.delete()) {
+					fos = file.create(FileCreateFlags.NONE);
+					dos = new DataOutputStream(fos);
+					dos.put_string ("datum,innen_min,aussen_min,innen_max,aussen_max,innen_avg,aussen_avg\n");
+						// FIXME use dynamic columns depending on tm.csv
+				} else {
+					stdout.printf("[SumFile] file not deleted");
+					return false;
+				}
 			} else {
 				fos = file.append_to(FileCreateFlags.NONE);
 			}
