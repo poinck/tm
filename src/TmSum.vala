@@ -18,19 +18,32 @@ class TmSum {
 	// TODO  columns should be parsed and written dynamically, except "datum" which has to the first column (think about renaming it into "date")
 	// FIXME use sqlite instead of csv (this will depricate the webfrontend written in C3js)
 	
+	public int run() {
+		for (int i = 1; i < 101; i++) {
+			dailySum();
+			stdout.printf("[TmSum] dailySum() has been called for the %d. time.\n", i);
+			Thread.usleep(1000000);
+		}
+		
+		return 100;
+	}
+
 	// TODO  start sum generation at specific date (determined by last entry of "tm.csv"); implement dailySum()-thread
 	public int dailySum() {
-		
+		for (int i = 1; i < 5; i++) {
+			stdout.printf("[TmSum] dailySum() has been called for the %d. time.\n", i);
+			Thread.usleep(1000 * 1000);
+		}
 
-		return 0;
+		return 4;
 	}
  
-	// FIXME use this method only for full regenerate, maybe rewrite, because current state is ugly as hell (split functionality for reuse)
+	// FIXME use this method only for full regenerate, maybe rewrite, because current state is ugly as hell (outsource functionality for reuse)
 	public int generateSum() {
 		var tmFile = File.new_for_path(tmFileDir);
 		
 		if (tmFile.query_exists() == false) {
-		    stderr.printf("[TmFile] ERROR File '%s' does not exist.\n", tmFile.get_path());
+		    stderr.printf("[TmSum] ERROR file '%s' does not exist.\n", tmFile.get_path());
 		    return 1;
 		}
 		

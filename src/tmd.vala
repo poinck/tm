@@ -3,10 +3,14 @@ void help() {
 }
 
 int main(string[] args) {
-	string workDir = "./"; // default: current directory
+	string workDir; // default: current directory
 	bool resetSum = false;
-	
-	// parse application parameters
+
+	// load settings from .tm.conf
+	TmConfig config = new TmConfig();
+	workDir = config.workDir;
+
+	// parse application parameters (overwrite settings from .tm.conf)
 	for (int i = 0 ; args.length > i ; i++) {
 		// debug
 		stdout.printf("arg: %s\n", args[i]);
@@ -21,6 +25,7 @@ int main(string[] args) {
 		if (args[i] == "-w" || args[i] == "--tm-workdir") {
 			if (args.length > i + 1) {
 				workDir = args[i + 1];
+				config.workDir = workDir;
 			} else {
 				workDir = "";
 			}
@@ -36,18 +41,31 @@ int main(string[] args) {
 
 	}
 
-	if (workDir == "./") {
-		stdout.printf("[main] using defaults.\n");
+	if (workDir == TmConfig.DEFAULT_WORKDIR) {
+		stdout.printf("[main] using default workdir '%s'\n", TmConfig.DEFAULT_WORKDIR);
+	} else {
+		stdout.printf("[main] using workdir '%s'\n", workDir);
 	}
 	if (workDir != "") {
 		// init
 		TmSum tmSum = new TmSum(workDir);
-		if (resetSum) {			
+		if (resetSum) {
 			tmSum.generateSum();
 		}
 		
 		// TODO  do generate sum periodically of last full day, if not already generated (call seperate method as thread); implement TmSum.dailySum()
-				
+		// FIXME use one central thread that triggers events for regular measurement, owm-submit and dailySum()
+		try {
+			// Thread<int> sumThread = new Thread<int>.try("starting tm-sum thread", tmSum.dailySum);
+			// int result = sumThread.join();
+			TmLoop loop = new TmLoop(config);
+			Thread<int> tmThread = new Thread<int>.try("[main] starting tmLoop", loop.run);
+			int result = tmThread.join();
+			stdout.printf("[main] stopped tmLoop with status %d\n", result);
+		}
+		catch (Error e) {
+			stdout.printf("[main] ERROR during tmLoop : %s\n", e.message);
+		}
 	} else {
 		help();
 	}

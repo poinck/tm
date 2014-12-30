@@ -30,6 +30,17 @@ public class CsvFile {
 		
 		return 0;
 	}
+
+	protected FileOutputStream fos;
 	
-	// public DateTime parseDateTime(string line)
+	public bool writeLine(string line) {
+		try {
+			fos.write(line.data);
+		} catch (Error e) {
+			stdout.printf ("Error: %s\n", e.message);
+			return false;
+		}
+
+		return true;
+	}
 }

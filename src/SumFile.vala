@@ -40,7 +40,6 @@ public class SumFile : CsvFile {
 	}
 	
 	public File file;
-	public FileOutputStream fos;
 	public DataOutputStream dos;
 	
 	/**
@@ -57,8 +56,8 @@ public class SumFile : CsvFile {
 				if (file.delete()) {
 					fos = file.create(FileCreateFlags.NONE);
 					dos = new DataOutputStream(fos);
-					dos.put_string ("datum,innen_min,aussen_min,innen_max,aussen_max,innen_avg,aussen_avg\n");
-						// FIXME use dynamic columns depending on tm.csv
+					dos.put_string("datum,innen_min,aussen_min,innen_max,aussen_max,innen_avg,aussen_avg\n");
+						// FIXME use dynamic columns depending on tm.csv (or based on .tm.conf)
 				} else {
 					stdout.printf("[SumFile] file not deleted");
 					return false;
@@ -75,14 +74,4 @@ public class SumFile : CsvFile {
 		return true;
 	}
 
-	public bool writeLine(string line) {
-		try {
-			fos.write(line.data);
-		} catch (Error e) {
-			stdout.printf ("Error: %s\n", e.message);
-			return false;
-		}
-
-		return true;
-	}
 }
