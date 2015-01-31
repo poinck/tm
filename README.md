@@ -1,9 +1,9 @@
-# Temperaturmessung (temperature measurement)
-**tm-0.0.1alpha**
-This readme explains how to install and use "temperature measurement". It consists of a server and client component and is written in Vala. 
+# temperature measurement v0.0.1alpha
+**One wire sensor temperature measurement application written in Vala.**
+This readme explains how to install and use "temperature measurement". It consists of a server and client component. It uses the Linux-kernel modules "w1_gpio" and "w1_therm" to read the output of temperature sensors.
 
 ## tmd
-**Temperaturmessdienst (temperature measurement deamon)**
+**temperature measurement deamon (Temperaturmessdienst)**
 Following features are part of "tmd":
  - record one wire sensor readings
  - submit measurements to Open Weather Map
@@ -11,13 +11,13 @@ Following features are part of "tmd":
 **Status:** implementation in progress
 
 ## tmc
-**Temperaturmessclient (temperature measurement cli-client)**
+**temperature measurement cli-client (Temperaturmessclient)**
 command-line client which can read "tm.csv" directly and connect to a local or remote "tmd"
 
 **Status:** in planning
 
 ## tmc-gtk
-**Temperaturmessclient (temperature measurement gtk-client)**
+**temperature measurement gtk-client (Temperaturmessclient)**
 Gtk3 application which can read "tm.csv" directly and connect to a local or remote "tmd"
 
 **Status:** Mockup in planning
