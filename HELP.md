@@ -1,7 +1,7 @@
 # HELP
 Small collection of tips and tricks to survive the Temperaturmessdienst-challange.
 
-## clean **"tm.csv"** if you find temperature from 1.1.1970
+## clean *"tm.csv"* if you find temperature from 1.1.1970
 If system got wrong date, you can do following to recover
 ```bash
 systemctl --user stop tmd.service
