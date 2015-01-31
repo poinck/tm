@@ -11,4 +11,4 @@ cp tm.csv2 tm.csv
 systemdctl --user restart tmd.service
 ```
 
-"tm_720.csv" can be cleaned, too, but it will be cleaned after 720s, if systemdate was corrected.
+"tm_720.csv" can be cleaned, too, but it will be cleaned after 720 minutes, if systemdate was corrected.
