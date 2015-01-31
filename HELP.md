@@ -1,4 +1,4 @@
-# HELP
+# Help:
 Small collection of tips and tricks to survive the Temperaturmessdienst-challange.
 
 ## clean *"tm.csv"* if you find temperature from 1.1.1970
