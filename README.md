@@ -1,4 +1,7 @@
 # Readme: temperature measurement
+
+![Eclipse 2015](/tm/150320eclipse.png)
+
 **One wire sensor temperature measurement application written in Vala.**
 This readme explains how to install and use "temperature measurement". It consists of a server and client component. It uses the Linux-kernel modules "w1_gpio" and "w1_therm" to read the output of temperature sensors.
 
