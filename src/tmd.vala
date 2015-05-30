@@ -1,5 +1,5 @@
 void help() {
-	stdout.printf("Temperaturmessdienst by @poinck (2014), GPLv3, tmd:\n -r, --reset-sum\n\trewrites entire tm_sum.csv including header.\n -w, --tm-workdir [PATH]\n\tdefault: current directory './' (directory, where 'tm.csv' is located)\n -h, --help\n\tshow this help\n");
+	stdout.printf("tmd (Temperaturmessdienst) by André Klausnitzer, CC0\n -r, --reset-sum\n\trewrites entire tm_sum.csv including header.\n -w, --tm-workdir [PATH]\n\tdefault: current directory './' (directory, where 'tm.csv' is located)\n -h, --help\n\tshow this help\n");
 }
 
 int main(string[] args) {
