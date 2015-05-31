@@ -8,7 +8,7 @@ systemctl --user stop tmd.service
 sed '/^1970./D' tm.csv > tm.csv2
 cp tm.csv tm.csv.backup
 cp tm.csv2 tm.csv
-systemdctl --user restart tmd.service
+systemctl --user restart tmd.service
 ```
 
 "tm_720.csv" can be cleaned, too, but it will be cleaned after 720 minutes, if systemdate was corrected.
