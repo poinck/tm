@@ -1,0 +1,80 @@
+#!/bin/bash
+
+# get colorEscapes from colors
+lColor() {
+	case $1 in
+		"red")
+			echo -en "\e[0;31m"
+		;;
+		"yellow")
+			echo -en "\e[0;33m"
+		;;
+		"green")
+			echo -en "\e[0;32m"
+		;;
+		"blue")
+			echo -en "\e[0;34m"
+		;;
+		"magenta")
+			echo -en "\e[0;35m"
+		;;
+		"cyan")
+			echo -en "\e[0;36m"
+		;;
+		"white")
+			echo -en "\e[0;37m"
+		;;
+		"ltred")
+			echo -en "\e[1;31m"
+		;;
+		"ltyellow")
+			echo -en "\e[1;33m"
+		;;
+		"ltgreen")
+			echo -en "\e[1;32m"
+		;;
+		"ltblue")
+			echo -en "\e[1;34m"
+		;;
+		"ltmagenta")
+			echo -en "\e[1;35m"
+		;;
+		"ltcyan")
+			echo -en "\e[1;36m"
+		;;
+		"ltwhite")
+			echo -en "\e[1;37m"
+		;;
+		"off")
+			echo -en "\e[0m"
+		;;
+	esac
+}
+
+while true ; do
+    current_temps=$( curl -s 192.168.2.101/~ich/tm/tm_720.csv | tr "," " " | tail -n 720 )
+
+    # debug
+    # echo "$current_temps"
+
+    sorted_temps_aussen=$( echo "$current_temps" | sort -k 4 )
+    max_aussen=$( echo "$sorted_temps_aussen" | tail -n 1 | cut -f 4 -d" " )
+    min_aussen=$( echo "$sorted_temps_aussen" | head -n 1 | cut -f 4 -d" " )
+
+    # debug
+    # echo "max_außen = $max_aussen, min_außen = $min_aussen"
+
+    current_temp=$( echo "$current_temps" | tail -n 1 )
+    innen=$( echo "$current_temp" | cut -f 3 -d" " )
+    aussen=$( echo "$current_temp" | cut -f 4 -d" " )
+
+    # debug
+    # echo "innen = $innen, außen = $aussen"
+
+    # for current_temp in $current_temps ; do
+    # done
+
+    echo -en "Temperatur: $(lColor ltgreen)$aussen$(lColor off)($(lColor blue)$min_aussen$(lColor off)-$(lColor red)$max_aussen$(lColor off))/$(lColor ltyellow)$innen$(lColor off) °C"
+    sleep 60
+    echo -en "\r"
+done
