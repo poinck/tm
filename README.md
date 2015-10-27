@@ -2,8 +2,8 @@
 
 ![Eclipse 2015](/tm/150320eclipse.png)
 
-**One wire sensor temperature measurement application written in Vala.**
-This readme explains how to install and use "temperature measurement". It consists of a server and client component. It uses the Linux-kernel modules "w1_gpio" and "w1_therm" to read the output of temperature sensors.
+**One wire sensor temperature measurement application suite written in bash, Vala and Javascript.**
+This readme explains how to install and use "temperature measurement". It consists of a server and client components. It uses the Linux-kernel modules "w1_gpio" and "w1_therm" to read the output of temperature sensors.
 
 ## Components
 
@@ -13,13 +13,19 @@ Following features are part of "tmd":
  - record one wire sensor readings
  - submit measurements to Open Weather Map
 
-**Status:** implementation in progress
+**Status:** two seperate implementations in progress (bash and Vala)
 
 ### tmc
 **temperature measurement cli-client (Temperaturmessclient)**
 command-line client which can read "tm.csv" directly and connect to a local or remote "tmd"
 
-**Status:** in planning
+**Status:** implementation in progress
+
+### tmc-webui
+**temperature measurement web-ui**
+Web frontends which show the file "tm_720.csv" in your browser
+
+**Status:** two implementations ready to use
 
 ### tmc-gtk
 **temperature measurement gtk-client (Temperaturmessclient)**
