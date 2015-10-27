@@ -118,6 +118,7 @@ draw_graphic_line() {
 draw_header
 line=0
 measurement=$NEW_GRAPHIC_LINE
+last_date="0000-00-00"
 while true ; do
     current_temps=$( curl -s "$TMD_URL" | tr "," " " | tail -n 720 )
 
@@ -145,6 +146,9 @@ while true ; do
     if [[ "$last_date" == "$current_formatted_date" ]] ; then
         :
     else
+        if [[ "$last_date" != "0000-00-00" ]] ; then
+            echo -e ""
+        fi
         last_date=$current_formatted_date
     fi
     innen=$( echo "$current_temp" | cut -f 3 -d" " )
@@ -162,6 +166,7 @@ while true ; do
     fi
     if [[ "$measurement" -ge "$NEW_GRAPHIC_LINE" ]] ; then
         formatted_aussen=$( format_temp "$aussen" )
+            # FIXME check if $aussen is valid, if not, use previous value
         current_time=$( echo "$current_temp" | cut -f 2 -d" " )
         current_formatted_time=$( format_time "$current_time" )
         draw_graphic_line "$formatted_aussen" "$current_formatted_time"
@@ -178,6 +183,7 @@ while true ; do
     echo -en "[$(lColor blue)$( format_temp $min_aussen )$(lColor off)@$min_formatted_aussen_time "
     echo -en "$(lColor red)$( format_temp $max_aussen )$(lColor off)@$max_formatted_aussen_time]  "
     echo -en "$(lColor ltyellow)$( format_temp $innen )$(lColor off) °C    "
+        # FIXME check all parameter of format_temp() is valid, if not, use previous value
     sleep 60
     echo -en "\r"
 done
