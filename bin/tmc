@@ -1,5 +1,10 @@
 #!/bin/bash
 
+TMD_URL="192.168.2.101/~ich/tm/tm_720.csv"
+MAX_COUNT=1440 # XXX  measurements (not used for now)
+NEW_HEADER=22 # in count of graphic lines drawn
+NEW_GRAPHIC_LINE=10 # in minutes
+
 # get colorEscapes from colors
 lColor() {
 	case $1 in
@@ -51,13 +56,83 @@ lColor() {
 	esac
 }
 
+format_date() {
+    local y=$( echo "$1" | cut -f 1 -d"-" )
+    local m=$( echo "$1" | cut -f 2 -d"-" )
+    local d=$( echo "$1" | cut -f 3 -d"-" )
+    echo -en "$d.$m.$y"
+}
+
+format_time() {
+    local h=$( echo "$1" | cut -f 1 -d":" )
+    local m=$( echo "$1" | cut -f 2 -d":" )
+    echo -en "$h:$m"
+}
+
+format_temp() {
+    local d=$(( $1 / 1000 ))
+    local e=$(( $1-d*1000 ))
+    local e1=$( echo "$e" | cut -b 1 )
+    local z=$( echo -n "$e" | wc -c )
+    if [[ "$z" -lt 3 ]] ; then
+        echo -en "$d,0"
+    else
+        echo -en "$d,$e1"
+    fi
+}
+
+draw_header() {
+    echo -e "            outside  min max                 inside"
+}
+
+draw_graphic_line() {
+    local min=-20
+    local max=45
+    local t=$( echo "$1" | cut -f 1 -d"," )
+    echo -en "     $2  $(lColor green)"
+    for (( i=$min ; i<=$max ; i=i+1 )) ; do
+        if [[ "$i" -le "$t" ]] ; then
+            if [[ "$i" -gt 0 ]] ; then
+                echo -en "+"
+            elif [[ $i -lt 0 ]] ; then
+                echo -en "-"
+            else
+                echo -en "$(lColor off):$(lColor green)"
+            fi
+        else
+            echo -en " "
+        fi
+            # TODO  better output: if negative, then draw from right to left.
+            # use different colors for specific temperature ranges?
+            #  -20 to -16  white
+            #  -15 to  -6  cyan
+            #   -5 to   4  blue
+            #    5 to  14  green
+            #   15 to  24  yellow
+            #   25 to  34  red
+            #   35 to      purple
+    done
+    echo -e "$(lColor off)"
+}
+
+draw_header
+line=0
+measurement=$NEW_GRAPHIC_LINE
 while true ; do
-    current_temps=$( curl -s 192.168.2.101/~ich/tm/tm_720.csv | tr "," " " | tail -n 720 )
+    current_temps=$( curl -s "$TMD_URL" | tr "," " " | tail -n 720 )
 
     # debug
     # echo "$current_temps"
 
-    sorted_temps_aussen=$( echo "$current_temps" | sort -k 4 )
+    sorted_temps_aussen=$( echo "$current_temps" | sort -k 4 -V )
+
+    # debug
+    # echo "$sorted_temps_aussen"
+
+    max_aussen_time=$( echo "$sorted_temps_aussen" | tail -n 1 | cut -f 2 -d" " )
+    max_formatted_aussen_time=$( format_time "$max_aussen_time" )
+    min_aussen_time=$( echo "$sorted_temps_aussen" | head -n 1 | cut -f 2 -d" " )
+    min_formatted_aussen_time=$( format_time "$min_aussen_time" )
     max_aussen=$( echo "$sorted_temps_aussen" | tail -n 1 | cut -f 4 -d" " )
     min_aussen=$( echo "$sorted_temps_aussen" | head -n 1 | cut -f 4 -d" " )
 
@@ -65,6 +140,13 @@ while true ; do
     # echo "max_außen = $max_aussen, min_außen = $min_aussen"
 
     current_temp=$( echo "$current_temps" | tail -n 1 )
+    current_date=$( echo "$current_temp" | cut -f 1 -d" " )
+    current_formatted_date=$( format_date "$current_date" )
+    if [[ "$last_date" == "$current_formatted_date" ]] ; then
+        :
+    else
+        last_date=$current_formatted_date
+    fi
     innen=$( echo "$current_temp" | cut -f 3 -d" " )
     aussen=$( echo "$current_temp" | cut -f 4 -d" " )
 
@@ -74,7 +156,28 @@ while true ; do
     # for current_temp in $current_temps ; do
     # done
 
-    echo -en "Temperatur: $(lColor ltgreen)$aussen$(lColor off)($(lColor blue)$min_aussen$(lColor off)-$(lColor red)$max_aussen$(lColor off))/$(lColor ltyellow)$innen$(lColor off) °C"
+    if [[ "$line" -ge "$NEW_HEADER" ]] ; then
+        draw_header
+        line=0
+    fi
+    if [[ "$measurement" -ge "$NEW_GRAPHIC_LINE" ]] ; then
+        formatted_aussen=$( format_temp "$aussen" )
+        current_time=$( echo "$current_temp" | cut -f 2 -d" " )
+        current_formatted_time=$( format_time "$current_time" )
+        draw_graphic_line "$formatted_aussen" "$current_formatted_time"
+        line=$(( line+1 ))
+        measurement=0
+    fi
+    measurement=$(( measurement+1 ))
+
+    # debug
+    # echo "measurement = $measurement"
+
+    echo -en "$current_formatted_date  "
+    echo -en "$(lColor ltgreen)$( format_temp $aussen )$(lColor off)      "
+    echo -en "[$(lColor blue)$( format_temp $min_aussen )$(lColor off)@$min_formatted_aussen_time "
+    echo -en "$(lColor red)$( format_temp $max_aussen )$(lColor off)@$max_formatted_aussen_time]  "
+    echo -en "$(lColor ltyellow)$( format_temp $innen )$(lColor off) °C    "
     sleep 60
     echo -en "\r"
 done

@@ -15,7 +15,7 @@ while : ; do
 	T1VALID=`echo $T1 | grep YES | wc -l`
 	T2=`cat $TS2`
 	T2VALID=`echo $T2 | grep YES | wc -l`
-	
+
 	# ignore known wrong value with correct CRC
 	T1VALUE=`echo $T1 | cut -d '=' -f3`
 	T2VALUE=`echo $T2 | cut -d '=' -f3`
@@ -39,24 +39,24 @@ while : ; do
 		echo -n "," >> $TMLOG
 		echo $T2VALUE >> $TMLOG
 		# echo `echo $T2 | cut -d '=' -f3` >> $TMLOG
-		
+
 		# ab hier rollendes Temperatur-Log
 		ZEILE="`tail -1 $TMLOG`"
 		CURRENT_COUNT=`cat $TMLOG720 | wc -l`
-	
+
 		# debug
 		# echo "zeile = $ZEILE"
 		# echo "anzahl (mit kopfzeile) = $CURRENT_COUNT"
 		# echo "`expr $MAX_COUNT - 1`"
-	
+
 		COUNT=$MAX_COUNT
 		if [ `expr $CURRENT_COUNT - 1` -lt $MAX_COUNT ]; then
 			# debug
 			# echo "current_count = $CURRENT_COUNT"
-		
+
 			COUNT=`expr $CURRENT_COUNT - 1`
 		fi
-	
+
 		if [ $COUNT -gt 0 ]; then
 			PARTIALLOG=`tail -$COUNT $TMLOG720`
 		fi
@@ -64,16 +64,16 @@ while : ; do
 		if [ $COUNT -gt 0 ]; then
 			echo "$PARTIALLOG" >> $TMLOG720
 		fi
-	
+
 		echo "$ZEILE" >> $TMLOG720
-		
+
 		# debug
 		# echo "new entry written to log, row = '${ZEILE}'"
 	fi
 	fi
 	fi
 	fi
-	sleep 60 
+	sleep 60
 done
 
 echo "Messung wurde unerwartet beendet"
