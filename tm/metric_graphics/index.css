@@ -1,0 +1,12 @@
+.graphs {
+	display: flex;
+	flex-direction: row;
+}
+
+.inside .mg-line1-color {
+	stroke: rgb(255, 0, 0);
+}
+
+.outside .mg-line1-color {
+	stroke: rgb(0, 82, 255);
+}
