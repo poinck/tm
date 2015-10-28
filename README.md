@@ -28,7 +28,6 @@ command-line client which can read "tm.csv" directly and connect to a local or r
 Web frontends which show the file "tm_720.csv" in your browser
 
 **Status:** two implementations ready to use
->>>>>>> 46c94f196cd4f3203f37f727016917377279d4c7
 
 ### tmc-gtk
 **temperature measurement gtk-client (Temperaturmessclient)**
