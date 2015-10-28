@@ -19,6 +19,8 @@ Following features are part of "tmd":
 **temperature measurement cli-client (Temperaturmessclient)**
 command-line client which can read "tm.csv" directly and connect to a local or remote "tmd"
 
+![tmc](/tm/tmc.png)
+
 **Status:** in planning
 
 ### tmc-gtk

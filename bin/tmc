@@ -61,12 +61,14 @@ format_date() {
     local m=$( echo "$1" | cut -f 2 -d"-" )
     local d=$( echo "$1" | cut -f 3 -d"-" )
     echo -en "$d.$m.$y"
+        # FIXME use prevoius date if $1 is not valid
 }
 
 format_time() {
     local h=$( echo "$1" | cut -f 1 -d":" )
     local m=$( echo "$1" | cut -f 2 -d":" )
     echo -en "$h:$m"
+        # FIXME use previous time if $1 is not valid?
 }
 
 format_temp() {
