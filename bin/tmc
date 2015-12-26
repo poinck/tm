@@ -1,6 +1,8 @@
 #!/bin/bash
 
 TMD_URL="192.168.2.101/~ich/tm/tm_720.csv"
+    # TODO  source a configuration file in ~, rename to "tmd_url"
+    # TODO  maybe: implement option to discover tmd on first start
 MAX_COUNT=1440 # XXX  measurements (not used for now)
 NEW_HEADER=22 # in count of graphic lines drawn
 NEW_GRAPHIC_LINE=10 # in minutes
@@ -72,8 +74,13 @@ format_time() {
 }
 
 format_temp() {
-    local d=$(( $1 / 1000 ))
-    local e=$(( $1-d*1000 ))
+    local temperature=$1
+    if [[ -z "$temperature" ]] ; then
+        temperature=1
+    fi
+
+    local d=$(( $temperature/1000 ))
+    local e=$(( $temperature-d*1000 ))
     local e1=$( echo "$e" | cut -b 1 )
     local z=$( echo -n "$e" | wc -c )
     if [[ "$z" -lt 3 ]] ; then
@@ -83,109 +90,163 @@ format_temp() {
     fi
 }
 
-draw_header() {
-    echo -e "            outside  min max                 inside"
-}
+# draw_header() {
+#     echo -e "            outside  min max                 inside     "
+# }
 
+last_t=0
 draw_graphic_line() {
     local min=-20
     local max=45
     local t=$( echo "$1" | cut -f 1 -d"," )
-    echo -en "     $2  $(lColor green)"
-    for (( i=$min ; i<=$max ; i=i+1 )) ; do
-        if [[ "$i" -le "$t" ]] ; then
+    if [[ ! "$t" -eq "$last_t" ]] ; then
+        echo -en "     $2  $(lColor green)"
+        for (( i=$min ; i<=$max ; i=i+1 )) ; do
             if [[ "$i" -gt 0 ]] ; then
-                echo -en "+"
+                if [[ "$i" -le "$t" ]] ; then
+                    # echo -en "+"
+                    if [[ "$i" -ge 1 ]] && [[ "$i" -le 4 ]]; then
+                        echo -en "$(lColor blue)+"
+                    fi
+                    if [[ "$i" -ge 5 ]] && [[ "$i" -le 14 ]] ; then
+                        echo -en "$(lColor green)+"
+                    fi
+                    if [[ "$i" -ge 15 ]] && [[ "$i" -le 24 ]] ; then
+                        echo -en "$(lColor yellow)+"
+                    fi
+                    if [[ "$i" -ge 25 ]] && [[ "$i" -le 34 ]] ; then
+                        echo -en "$(lColor red)+"
+                    fi
+                    if [[ "$i" -ge 35 ]] ; then
+                        echo -en "$(lColor purple)+"
+                    fi
+                fi
             elif [[ $i -lt 0 ]] ; then
-                echo -en "-"
+                if [[ "$i" -ge "$t" ]] ; then
+                    if [[ "$i" -le -16 ]] ; then
+                        echo -en "$(lColor white)-"
+                    fi
+                    if [[ "$i" -ge -15 ]] && [[ "$i" -le -6 ]] ; then
+                        echo -en "$(lColor cyan)-"
+                    fi
+                    if [[ "$i" -ge -5 ]] && [[ "$i" -le -1 ]] ; then
+                        echo -en "$(lColor blue)-"
+                    fi
+                else
+                    echo -en " "
+                fi
             else
-                echo -en "$(lColor off):$(lColor green)"
+                # echo -en " "
+                echo -en "$(lColor off):"
             fi
-        else
-            echo -en " "
-        fi
-            # TODO  better output: if negative, then draw from right to left.
-            # use different colors for specific temperature ranges?
-            #  -20 to -16  white
-            #  -15 to  -6  cyan
-            #   -5 to   4  blue
-            #    5 to  14  green
-            #   15 to  24  yellow
-            #   25 to  34  red
-            #   35 to      purple
-    done
-    echo -e "$(lColor off)"
+        done
+        echo -e "$(lColor off)"
+        last_t=$t
+    fi
 }
 
-draw_header
-line=0
-measurement=$NEW_GRAPHIC_LINE
+# draw_header
+    # XXX   no header please
+
+# draw last temperature changes
+POS_DATE=1
+POS_TIME=2
+POS_INSIDE=3
+POS_OUTSIDE=4
+pos=0
+current_temps=$( curl -s "$TMD_URL" -m 5 | tr "," " " | tail -n 720 )
+for current_temp in $current_temps ; do
+    pos=$pos+1
+
+    if [[ "$pos" -eq "$POS_DATE" ]] ; then
+        # currently no display of date in graph
+        :
+    elif [[ "$pos" -eq "$POS_TIME" ]] ; then
+        current_time=$current_temp
+        current_formatted_time=$( format_time "$current_time" )
+    elif [[ "$pos" -eq "$POS_INSIDE" ]] ; then
+        # currently only display of outside temparature in graph
+        :
+    elif [[ "$pos" -eq "$POS_OUTSIDE" ]] ; then
+        formatted_aussen=$( format_temp "$current_temp" )
+        draw_graphic_line "$formatted_aussen" "$current_formatted_time"
+        pos=0
+    fi
+
+    # debug
+    # echo "$current_temp"
+done
+
+# line=0
+# measurement=$NEW_GRAPHIC_LINE
 last_date="0000-00-00"
 while true ; do
-    current_temps=$( curl -s "$TMD_URL" | tr "," " " | tail -n 720 )
+    current_temps=$( curl -s "$TMD_URL" -m 5 | tr "," " " | tail -n 720 )
+    if [[ ! -z "$current_temps" ]] ; then
+        # debug
+        # echo "ct = $current_temps"
 
-    # debug
-    # echo "$current_temps"
+        sorted_temps_aussen=$( echo "$current_temps" | sort -k 4 -V )
 
-    sorted_temps_aussen=$( echo "$current_temps" | sort -k 4 -V )
+        # debug
+        # echo "sta = $sorted_temps_aussen"
 
-    # debug
-    # echo "$sorted_temps_aussen"
+        max_aussen_time=$( echo "$sorted_temps_aussen" | tail -n 1 | cut -f 2 -d" " )
+        max_formatted_aussen_time=$( format_time "$max_aussen_time" )
+        min_aussen_time=$( echo "$sorted_temps_aussen" | head -n 1 | cut -f 2 -d" " )
+        min_formatted_aussen_time=$( format_time "$min_aussen_time" )
+        max_aussen=$( echo "$sorted_temps_aussen" | tail -n 1 | cut -f 4 -d" " )
+        min_aussen=$( echo "$sorted_temps_aussen" | head -n 1 | cut -f 4 -d" " )
 
-    max_aussen_time=$( echo "$sorted_temps_aussen" | tail -n 1 | cut -f 2 -d" " )
-    max_formatted_aussen_time=$( format_time "$max_aussen_time" )
-    min_aussen_time=$( echo "$sorted_temps_aussen" | head -n 1 | cut -f 2 -d" " )
-    min_formatted_aussen_time=$( format_time "$min_aussen_time" )
-    max_aussen=$( echo "$sorted_temps_aussen" | tail -n 1 | cut -f 4 -d" " )
-    min_aussen=$( echo "$sorted_temps_aussen" | head -n 1 | cut -f 4 -d" " )
+        # debug
+        # echo "max_außen = $max_aussen, min_außen = $min_aussen"
 
-    # debug
-    # echo "max_außen = $max_aussen, min_außen = $min_aussen"
-
-    current_temp=$( echo "$current_temps" | tail -n 1 )
-    current_date=$( echo "$current_temp" | cut -f 1 -d" " )
-    current_formatted_date=$( format_date "$current_date" )
-    if [[ "$last_date" == "$current_formatted_date" ]] ; then
-        :
-    else
-        if [[ "$last_date" != "0000-00-00" ]] ; then
-            echo -e ""
+        current_temp=$( echo "$current_temps" | tail -n 1 )
+        current_date=$( echo "$current_temp" | cut -f 1 -d" " )
+        current_formatted_date=$( format_date "$current_date" )
+        if [[ "$last_date" == "$current_formatted_date" ]] ; then
+            :
+        else
+            if [[ "$last_date" != "0000-00-00" ]] ; then
+                echo -e ""
+            fi
+            last_date=$current_formatted_date
         fi
-        last_date=$current_formatted_date
-    fi
-    innen=$( echo "$current_temp" | cut -f 3 -d" " )
-    aussen=$( echo "$current_temp" | cut -f 4 -d" " )
+        innen=$( echo "$current_temp" | cut -f 3 -d" " )
+        aussen=$( echo "$current_temp" | cut -f 4 -d" " )
 
-    # debug
-    # echo "innen = $innen, außen = $aussen"
+        # debug
+        # echo "innen = $innen, außen = $aussen"
 
-    # for current_temp in $current_temps ; do
-    # done
-
-    if [[ "$line" -ge "$NEW_HEADER" ]] ; then
-        draw_header
-        line=0
-    fi
-    if [[ "$measurement" -ge "$NEW_GRAPHIC_LINE" ]] ; then
+        # if [[ "$line" -ge "$NEW_HEADER" ]] ; then
+        #     draw_header
+        #     line=0
+        # fi
+        # if [[ "$measurement" -ge "$NEW_GRAPHIC_LINE" ]] ; then
         formatted_aussen=$( format_temp "$aussen" )
-            # FIXME check if $aussen is valid, if not, use previous value
         current_time=$( echo "$current_temp" | cut -f 2 -d" " )
         current_formatted_time=$( format_time "$current_time" )
         draw_graphic_line "$formatted_aussen" "$current_formatted_time"
-        line=$(( line+1 ))
-        measurement=0
+            # line=$(( line+1 ))
+            # measurement=0
+        # fi
+        # measurement=$(( measurement+1 ))
+
+        # debug
+        # echo "measurement = $measurement"
+
+        echo -en "$current_formatted_date  "
+        echo -en "$(lColor ltgreen)$( format_temp "$aussen" )$(lColor off)      "
+        echo -en "[$(lColor blue)$( format_temp "$min_aussen" )$(lColor off)@$min_formatted_aussen_time "
+        echo -en "$(lColor red)$( format_temp "$max_aussen" )$(lColor off)@$max_formatted_aussen_time]  "
+        echo -en "$(lColor ltyellow)$( format_temp "$innen" )$(lColor off) °C    "
+            # FIXME check all parameter of format_temp() is valid, if not, use previous value
+    else
+        # no connection
+        echo -en "no connection to $TMD_URL       "
     fi
-    measurement=$(( measurement+1 ))
 
-    # debug
-    # echo "measurement = $measurement"
-
-    echo -en "$current_formatted_date  "
-    echo -en "$(lColor ltgreen)$( format_temp $aussen )$(lColor off)      "
-    echo -en "[$(lColor blue)$( format_temp $min_aussen )$(lColor off)@$min_formatted_aussen_time "
-    echo -en "$(lColor red)$( format_temp $max_aussen )$(lColor off)@$max_formatted_aussen_time]  "
-    echo -en "$(lColor ltyellow)$( format_temp $innen )$(lColor off) °C    "
-        # FIXME check all parameter of format_temp() is valid, if not, use previous value
     sleep 60
     echo -en "\r"
+
 done
