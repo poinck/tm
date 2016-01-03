@@ -4,8 +4,8 @@ TMD_URL="192.168.2.101/~ich/tm/tm_720.csv"
     # TODO  source a configuration file in ~, rename to "tmd_url"
     # TODO  maybe: implement option to discover tmd on first start
 MAX_COUNT=1440 # XXX  measurements (not used for now)
-NEW_HEADER=22 # in count of graphic lines drawn
-NEW_GRAPHIC_LINE=10 # in minutes
+# NEW_HEADER=22 # in count of graphic lines drawn
+# NEW_GRAPHIC_LINE=10 # in minutes
 
 # get colorEscapes from colors
 lColor() {
@@ -81,7 +81,12 @@ format_temp() {
 
     local d=$(( $temperature/1000 ))
     local e=$(( $temperature-d*1000 ))
-    local e1=$( echo "$e" | cut -b 1 )
+    local e1=0
+    if [[ "$e" -lt 0 ]] ; then
+        e1=$( echo "$e" | cut -b 2 )
+    else
+        e1=$( echo "$e" | cut -b 1 )
+    fi
     local z=$( echo -n "$e" | wc -c )
     if [[ "$z" -lt 3 ]] ; then
         echo -en "$d,0"
@@ -120,6 +125,8 @@ draw_graphic_line() {
                     if [[ "$i" -ge 35 ]] ; then
                         echo -en "$(lColor purple)+"
                     fi
+                else
+                    echo -en "$(lColor off) "
                 fi
             elif [[ $i -lt 0 ]] ; then
                 if [[ "$i" -ge "$t" ]] ; then
