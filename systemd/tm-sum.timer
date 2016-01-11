@@ -1,0 +1,10 @@
+[Unit]
+Description=TM sum daily
+
+[Timer]
+OnCalendar=daily
+AccuracySec=15min
+Persistent=true
+
+[Install]
+WantedBy=timers.target
