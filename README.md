@@ -17,7 +17,7 @@ Following features are part of "tmd":
 
 ### tmc
 **temperature measurement cli-client (Temperaturmessclient)**
-command-line client which can read "tm.csv" directly and connect to a local or remote "tmd". It can show the current temperature, thetemperatures of the last 12 hours and by default the temperature-summary of the last 30 days.
+command-line client which can read "tm.csv" and "tm_sum.csv" provided by "tmd" on a remote or local webserver. It can show the current temperature, the temperatures of the last 12 hours and by default the temperature-summary of the last 30 days.
 
 ![tmc](/tm/tmc.png)
 
