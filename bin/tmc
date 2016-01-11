@@ -99,17 +99,27 @@ format_temp() {
 #     echo -e "            outside  min max                 inside     "
 # }
 
-last_t=0
+last_temp=0
+last_time=0
 draw_graphic_line() {
     local min=-20
     local max=45
     local t=$( echo "$1" | cut -f 1 -d"," )
-    if [[ ! "$t" -eq "$last_t" ]] ; then
+    local this_time=$( echo "$2" | cut -f 2 -d":" ) # time of this dataset
+    local next_time=$(( last_time+10 )) # drop temperature change within 10 minutes
+    local next_time_firstbyte=$( echo "$next_time" | cut -b 1 )
+    if [[ "$next_time_firstbyte" -eq "0" ]] ; then
+        next_time=$( echo "$next_time" | cut -b 2 )
+    fi
+    local this_time_firstbyte=$( echo "$this_time" | cut -b 1 )
+    if [[ "$this_time_firstbyte" -eq "0" ]] ; then
+        this_time=$( echo "$this_time" | cut -b 2 )
+    fi
+    if [[ ! "$t" -eq "$last_temp" ]] && [[ "$this_time" -gt "$next_time" ]] ; then
         echo -en "     $2  $(lColor green)"
         for (( i=$min ; i<=$max ; i=i+1 )) ; do
             if [[ "$i" -gt 0 ]] ; then
                 if [[ "$i" -le "$t" ]] ; then
-                    # echo -en "+"
                     if [[ "$i" -ge 1 ]] && [[ "$i" -le 4 ]]; then
                         echo -en "$(lColor blue)+"
                     fi
@@ -148,7 +158,8 @@ draw_graphic_line() {
             fi
         done
         echo -e "$(lColor off)"
-        last_t=$t
+        last_temp=$t
+        last_time=$this_time
     fi
 }
 
@@ -188,7 +199,10 @@ done
 # measurement=$NEW_GRAPHIC_LINE
 last_date="0000-00-00"
 while true ; do
-    current_temps=$( curl -s "$TMD_URL" -m 5 | tr "," " " | tail -n 720 )
+    current_temps=$( curl -s "$TMD_URL" -m 5 | tr "," " " )
+    lines=$( echo "$current_temps" | wc -l )
+    lines=$(( lines-1 ))
+    current_temps=$( echo "$current_temps" | tail -n "$lines" )
     if [[ ! -z "$current_temps" ]] ; then
         # debug
         # echo "ct = $current_temps"
