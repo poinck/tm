@@ -1,11 +1,21 @@
 #!/bin/bash
 
 TMD_URL="192.168.2.101/~ich/tm/tm_720.csv"
+TMD_SUM_URL="192.168.2.101/~ich/tm/tm_sum.csv"
     # TODO  source a configuration file in ~, rename to "tmd_url"
     # TODO  maybe: implement option to discover tmd on first start
+DAYS=30
+QUIET_TIME=60 # in minutes
 MAX_COUNT=1440 # XXX  measurements (not used for now)
 # NEW_HEADER=22 # in count of graphic lines drawn
 # NEW_GRAPHIC_LINE=10 # in minutes
+
+# option "-d <days>"
+if [[ "$1" -eq "-d" ]] ; then
+    if [[ -n "$2" ]] ; then
+        DAYS=$2
+    fi
+fi
 
 # get colorEscapes from colors
 lColor() {
@@ -54,7 +64,6 @@ lColor() {
 		;;
 		"off")
 			echo -en "\e[0m"
-		;;
 	esac
 }
 
@@ -95,30 +104,103 @@ format_temp() {
     fi
 }
 
-# draw_header() {
-#     echo -e "            outside  min max                 inside     "
-# }
+range_min=-20
+range_max=45
+draw_week() {
+    echo "                          last $DAYS days"
+    sum_temps=$( curl -s "$TMD_SUM_URL" -m 5 | tr "," " " | tail -n "$DAYS" )
+    POS_DATE=1
+    POS_MIN=4
+    POS_MAX=6
+    POS_AVG=8
+    local pos=0
+    for sum_temp in $sum_temps ; do
+        pos=$pos+1
+        if [[ "$pos" -eq "$POS_DATE" ]] ; then
+            # currently no display of date in graph
+            current_formatted_date=$( format_date "$sum_temp" )
+        elif [[ "$pos" -eq "$POS_MIN" ]] ; then
+            current_formatted_min=$( format_temp "$sum_temp" )
+        elif [[ "$pos" -eq "$POS_MAX" ]] ; then
+            current_formatted_max=$( format_temp "$sum_temp" )
+        elif [[ "$pos" -eq "$POS_AVG" ]] ; then
+            current_formatted_avg=$( format_temp "$sum_temp" )
+
+            echo -en "$current_formatted_date  "
+            local max=$( echo "$current_formatted_max" | cut -f 1 -d"," )
+            local min=$( echo "$current_formatted_min" | cut -f 1 -d"," )
+            local avg=$( echo "$current_formatted_avg" | cut -f 1 -d"," )
+            local l=""
+            for (( i=$range_min ; i<=$range_max ; i=i+1 )) ; do
+                if [[ "$i" -eq "$avg" ]] ; then
+                    l="lt"
+                else
+                    l=""
+                fi
+                if [[ "$i" -eq 0 ]] ; then
+                    echo -en "$(lColor "${l}white"):"
+                fi
+                # if [[ "$i" -lt 0 ]] ; then
+                if [[ "$i" -ge "$min" ]] && [[ "$i" -le "$max" ]]; then
+                    if [[ "$i" -le -16 ]] ; then
+                        echo -en "$(lColor "${l}white")-"
+                    elif [[ "$i" -ge -15 ]] && [[ "$i" -le -6 ]] ; then
+                        echo -en "$(lColor "${l}cyan")-"
+                    elif [[ "$i" -ge -5 ]] && [[ "$i" -le -1 ]] ; then
+                        echo -en "$(lColor "${l}blue")-"
+                    elif [[ "$i" -ge 1 ]] && [[ "$i" -le 4 ]]; then
+                        echo -en "$(lColor "${l}blue")+"
+                    elif [[ "$i" -ge 5 ]] && [[ "$i" -le 14 ]] ; then
+                        echo -en "$(lColor "${l}green")+"
+                    elif [[ "$i" -ge 15 ]] && [[ "$i" -le 24 ]] ; then
+                        echo -en "$(lColor "${l}yellow")+"
+                    elif [[ "$i" -ge 25 ]] && [[ "$i" -le 34 ]] ; then
+                        echo -en "$(lColor "${l}red")+"
+                    elif [[ "$i" -ge 35 ]] ; then
+                        echo -en "$(lColor "${l}purple")+"
+                    fi
+                else
+                    echo -en "$(lColor off) "
+                fi
+            done
+            echo -e "$(lColor off)"
+
+            # debug
+            # echo "$current_formatted_date $current_formatted_max $current_formatted_min $current_formatted_avg"
+
+            pos=0
+        fi
+    done
+
+    echo ""
+}
 
 last_temp=0
 last_time=0
+its_time=0
 draw_graphic_line() {
     local min=-20
     local max=45
     local t=$( echo "$1" | cut -f 1 -d"," )
-    local this_time=$( echo "$2" | cut -f 2 -d":" ) # time of this dataset
-    local next_time=$(( last_time+10 )) # drop temperature change within 10 minutes
-    if [[ "$next_time" -ge 60 ]] ; then
-        next_time=$(( next_time-60 ))
-    fi
-    local next_time_firstbyte=$( echo "$next_time" | cut -b 1 )
-    if [[ "$next_time_firstbyte" -eq "0" ]] ; then
-        next_time=$( echo "$next_time" | cut -b 2 )
-    fi
-    local this_time_firstbyte=$( echo "$this_time" | cut -b 1 )
-    if [[ "$this_time_firstbyte" -eq "0" ]] ; then
-        this_time=$( echo "$this_time" | cut -b 2 )
-    fi
-    if [[ ! "$t" -eq "$last_temp" ]] && [[ "$this_time" -gt "$next_time" ]] ; then
+    # local this_time=$( echo "$2" | cut -f 2 -d":" ) # time of this dataset
+    # local next_time=$(( last_time+QUIET_TIME )) # drop temperature change within QUIET_TIME in minutes
+    # if [[ "$next_time" -ge 60 ]] ; then
+    #     next_time=$(( next_time-QUIET_TIME ))
+    #     # next_time=59
+    # fi
+    # local next_time_firstbyte=$( echo "$next_time" | cut -b 1 )
+    # if [[ "$next_time_firstbyte" -eq "0" ]] ; then
+    #     next_time=$( echo "$next_time" | cut -b 2 )
+    # fi
+    # local this_time_firstbyte=$( echo "$this_time" | cut -b 1 )
+    # if [[ "$this_time_firstbyte" -eq "0" ]] ; then
+    #     this_time=$( echo "$this_time" | cut -b 2 )
+    # fi
+
+    # debug
+    # echo "its_time = $its_time"
+
+    if [[ ! "$t" -eq "$last_temp" ]] && [[ "$its_time" -eq 0 ]] ; then
         echo -en "     $2  $(lColor green)"
         for (( i=$min ; i<=$max ; i=i+1 )) ; do
             if [[ "$i" -gt 0 ]] ; then
@@ -162,32 +244,42 @@ draw_graphic_line() {
         done
         echo -e "$(lColor off)"
         last_temp=$t
-        last_time=$this_time
+        its_time=$QUIET_TIME
+        # last_time=$this_time
+    fi
+    if [[ "$its_time" -gt 0 ]] ; then
+        its_time=$(( its_time-1 ))
     fi
 }
 
 # draw_header
     # XXX   no header please
 
+draw_week
+
 # draw last temperature changes
+echo "                          last 12 hours"
 POS_DATE=1
 POS_TIME=2
 POS_INSIDE=3
 POS_OUTSIDE=4
 pos=0
-current_temps=$( curl -s "$TMD_URL" -m 5 | tr "," " " | tail -n 720 )
+current_temps=$( curl -s "$TMD_URL" -m 5 | tr "," " " )
+lines=$( echo "$current_temps" | wc -l )
+lines=$(( lines-1 ))
+current_temps=$( echo "$current_temps" | tail -n "$lines" )
 for current_temp in $current_temps ; do
     pos=$pos+1
 
-    if [[ "$pos" -eq "$POS_DATE" ]] ; then
-        # currently no display of date in graph
-        :
-    elif [[ "$pos" -eq "$POS_TIME" ]] ; then
+    # if [[ "$pos" -eq "$POS_DATE" ]] ; then
+    #     # currently no display of date in graph
+    #     :
+    if [[ "$pos" -eq "$POS_TIME" ]] ; then
         current_time=$current_temp
         current_formatted_time=$( format_time "$current_time" )
-    elif [[ "$pos" -eq "$POS_INSIDE" ]] ; then
-        # currently only display of outside temparature in graph
-        :
+    # elif [[ "$pos" -eq "$POS_INSIDE" ]] ; then
+    #     # currently only display of outside temparature in graph
+    #     :
     elif [[ "$pos" -eq "$POS_OUTSIDE" ]] ; then
         formatted_aussen=$( format_temp "$current_temp" )
         draw_graphic_line "$formatted_aussen" "$current_formatted_time"
@@ -198,8 +290,6 @@ for current_temp in $current_temps ; do
     # echo "$current_temp"
 done
 
-# line=0
-# measurement=$NEW_GRAPHIC_LINE
 last_date="0000-00-00"
 while true ; do
     current_temps=$( curl -s "$TMD_URL" -m 5 | tr "," " " )

@@ -11,15 +11,20 @@ This readme explains how to install and use "temperature measurement". It consis
 **temperature measurement deamon (Temperaturmessdienst)**
 Following features are part of "tmd":
  - record one wire sensor readings
- - submit measurements to Open Weather Map
+ - submit measurements to Open Weather Map (not working, api has changed)
 
 **Status:** two seperate implementations in progress (bash and Vala)
 
 ### tmc
 **temperature measurement cli-client (Temperaturmessclient)**
-command-line client which can read "tm.csv" directly and connect to a local or remote "tmd"
+command-line client which can read "tm.csv" directly and connect to a local or remote "tmd". It can show the current temperature, thetemperatures of the last 12 hours and by default the temperature-summary of the last 30 days.
 
 ![tmc](/tm/tmc.png)
+
+**Options:**
+```
+-d <days>    adjust days of summary, last 30 days
+```
 
 **Status:** implementation in progress
 
