@@ -107,6 +107,9 @@ draw_graphic_line() {
     local t=$( echo "$1" | cut -f 1 -d"," )
     local this_time=$( echo "$2" | cut -f 2 -d":" ) # time of this dataset
     local next_time=$(( last_time+10 )) # drop temperature change within 10 minutes
+    if [[ "$next_time" -ge 60 ]] ; then
+        next_time=$(( next_time-60 ))
+    fi
     local next_time_firstbyte=$( echo "$next_time" | cut -b 1 )
     if [[ "$next_time_firstbyte" -eq "0" ]] ; then
         next_time=$( echo "$next_time" | cut -b 2 )
