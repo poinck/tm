@@ -3,4 +3,4 @@ Description=TM sum
 
 [Service]
 # defaults to Type=simple
-ExecStart=/home/ich/gits/tm/tm-sum -w /home/ich/public_html/tm/
+ExecStart=/home/ich/bin/tm-sum -r -w /home/ich/public_html/tm/

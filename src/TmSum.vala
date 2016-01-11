@@ -133,7 +133,7 @@ class TmSum {
 		}
 		
 		// debug
-		sumFile.dumpFile();
+		// sumFile.dumpFile();
 		
 		return 0;
 	}	

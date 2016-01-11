@@ -52,19 +52,21 @@ int main(string[] args) {
 		if (resetSum) {
 			tmSum.generateSum();
 		}
-		
-		// TODO  do generate sum periodically of last full day, if not already generated (call seperate method as thread); implement TmSum.dailySum()
-		// FIXME use one central thread that triggers events for regular measurement, owm-submit and dailySum()
-		try {
-			// Thread<int> sumThread = new Thread<int>.try("starting tm-sum thread", tmSum.dailySum);
-			// int result = sumThread.join();
-			TmLoop loop = new TmLoop(config);
-			Thread<int> tmThread = new Thread<int>.try("[main] starting tmLoop", loop.run);
-			int result = tmThread.join();
-			stdout.printf("[main] stopped tmLoop with status %d\n", result);
-		}
-		catch (Error e) {
-			stdout.printf("[main] ERROR during tmLoop : %s\n", e.message);
+		else {
+			// XXX   for now: no loop if "tm_sum.csv" should be resetted
+			// TODO  do generate sum periodically of last full day, if not already generated (call seperate method as thread); implement TmSum.dailySum()
+			// FIXME use one central thread that triggers events for regular measurement, owm-submit and dailySum()
+			try {
+				// Thread<int> sumThread = new Thread<int>.try("starting tm-sum thread", tmSum.dailySum);
+				// int result = sumThread.join();
+				TmLoop loop = new TmLoop(config);
+				Thread<int> tmThread = new Thread<int>.try("[main] starting tmLoop", loop.run);
+				int result = tmThread.join();
+				stdout.printf("[main] stopped tmLoop with status %d\n", result);
+			}
+			catch (Error e) {
+				stdout.printf("[main] ERROR during tmLoop : %s\n", e.message);
+			}
 		}
 	} else {
 		help();
