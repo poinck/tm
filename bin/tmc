@@ -1,9 +1,18 @@
 #!/bin/bash
 
-TMD_URL="192.168.2.101/~ich/tm/tm_720.csv"
-TMD_SUM_URL="192.168.2.101/~ich/tm/tm_sum.csv"
-    # TODO  source a configuration file in ~, rename to "tmd_url"
-    # TODO  maybe: implement option to discover tmd on first start
+TMD_URL="~/public_html/tm/tm_720.csv"
+TMD_SUM_URL="~/public_html/tm/tm_sum.csv"
+if [[ -f ~/.tmcrc ]] ; then
+    . ~/.tmcrc
+    if [[ -n "$tmd_url" ]] ; then
+        TMD_URL="$tmd_url"
+    fi
+    if [[ -n "$tmd_sum_url" ]] ; then
+        TMD_SUM_URL="$tmd_sum_url"
+    fi
+
+fi
+
 DAYS=30
 QUIET_TIME=60 # in minutes
 MAX_COUNT=1440 # XXX  measurements (not used for now)
@@ -182,20 +191,6 @@ draw_graphic_line() {
     local min=-20
     local max=45
     local t=$( echo "$1" | cut -f 1 -d"," )
-    # local this_time=$( echo "$2" | cut -f 2 -d":" ) # time of this dataset
-    # local next_time=$(( last_time+QUIET_TIME )) # drop temperature change within QUIET_TIME in minutes
-    # if [[ "$next_time" -ge 60 ]] ; then
-    #     next_time=$(( next_time-QUIET_TIME ))
-    #     # next_time=59
-    # fi
-    # local next_time_firstbyte=$( echo "$next_time" | cut -b 1 )
-    # if [[ "$next_time_firstbyte" -eq "0" ]] ; then
-    #     next_time=$( echo "$next_time" | cut -b 2 )
-    # fi
-    # local this_time_firstbyte=$( echo "$this_time" | cut -b 1 )
-    # if [[ "$this_time_firstbyte" -eq "0" ]] ; then
-    #     this_time=$( echo "$this_time" | cut -b 2 )
-    # fi
 
     # debug
     # echo "its_time = $its_time"
@@ -251,9 +246,6 @@ draw_graphic_line() {
         its_time=$(( its_time-1 ))
     fi
 }
-
-# draw_header
-    # XXX   no header please
 
 draw_week
 
@@ -332,19 +324,10 @@ while true ; do
         # debug
         # echo "innen = $innen, außen = $aussen"
 
-        # if [[ "$line" -ge "$NEW_HEADER" ]] ; then
-        #     draw_header
-        #     line=0
-        # fi
-        # if [[ "$measurement" -ge "$NEW_GRAPHIC_LINE" ]] ; then
         formatted_aussen=$( format_temp "$aussen" )
         current_time=$( echo "$current_temp" | cut -f 2 -d" " )
         current_formatted_time=$( format_time "$current_time" )
         draw_graphic_line "$formatted_aussen" "$current_formatted_time"
-            # line=$(( line+1 ))
-            # measurement=0
-        # fi
-        # measurement=$(( measurement+1 ))
 
         # debug
         # echo "measurement = $measurement"
@@ -360,7 +343,7 @@ while true ; do
         echo -en "no connection to $TMD_URL       "
     fi
 
-    sleep 60
+    sleep 600 # 10 minutes
     echo -en "\r"
 
 done
