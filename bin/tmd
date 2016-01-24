@@ -2,6 +2,7 @@
 
 TMLOG="$HOME/public_html/tm/tm.csv"
 TMLOG720="$HOME/public_html/tm/tm_720.csv"
+TMLOG1="$HOME/public_html/tm/tm_1.csv"
 TS1="/sys/bus/w1/devices/10-000802bce280/w1_slave" # innen
 TS2="/sys/bus/w1/devices/10-000802c2f07e/w1_slave" # aussen
 WRONG_VALUE=85000 # exception for known wrong value with correct CRC
@@ -66,6 +67,7 @@ while : ; do
 		fi
 
 		echo "$ZEILE" >> $TMLOG720
+        echo "$ZEILE" > $TMLOG1
 
 		# debug
 		# echo "new entry written to log, row = '${ZEILE}'"
