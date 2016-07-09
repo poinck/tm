@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <meta charset="utf-8">
+        <title>D3 Workshop</title>
+
+        <!-- Style für die Anzeige am Bildschirm, alternativ wäre media="print" -->
+        <style media="screen">
+            /* .balken {
+                fill: #123456;
+            } */
+
+        </style>
+    </head>
+
+    <body>
+        <svg id="versuch" width="500" height="500">
+            <rect id="zuerst" class="balken" x="25" height="25"></rect>
+            <rect id="danach" class="balken" x="25" height="25"></rect>
+            <rect id="zuletzt" class="balken" x="25" height="25"></rect>
+        </svg>
+
+        <!-- embed scripts at the end of everything in the body -->
+        <script src="https://d3js.org/d3.v4.min.js"></script>
+        <script src="https://d3js.org/d3-collection.v1.min.js"></script>
+        <script src="https://d3js.org/d3-dispatch.v1.min.js"></script>
+        <script src="https://d3js.org/d3-dsv.v1.min.js"></script>
+        <script src="https://d3js.org/d3-request.v1.min.js"></script>
+        <script type="text/javascript">
+            function get_y(d, i) {
+                return i * d3.select(this).attr('height') + 25 + i * 2;
+            }
+
+            function set_attr(s) {
+                s
+                .attr('x', 25)
+                .attr('height', 25)
+                .attr('width', function(d) { return d.value })
+                .attr('y', get_y)
+                .attr('fill', function(d) { return d.color });
+            }
+
+            var testdata = [{value:10, color:"#7890ab"},
+            {value:50, color:"#cdef12"},
+            {value:20, color:"#345678"},
+            {value:95, color:"#7890ab"},
+            {value:123, color:"#cdef12"},
+            {value:23, color:"#ffaacc"},
+            {value:42, color:"#123456"}];
+
+            function update_fb() {
+                d3.csv('http://localhost/farbbalken.csv', function(fb) {
+                    console.log(fb)
+
+                    var balken = d3.select('#versuch')
+                    .selectAll('.balken')
+                    .data(fb); // d: value im array, i: index im array
+
+                    balken
+                    .call(set_attr); // set value and color for all existing rects
+
+                    balken
+                    .enter()
+                    .append('rect')
+                    .classed('balken', true)
+                    .call(set_attr); // set value and color for new rects
+
+                    //d3.select('#versuch')
+                    //.selectAll('.balken')
+                    //.data(fb)
+
+                    balken
+                    .exit() // verändert die auswahl aud die elemente, die nicht mehr in der Datenquelle "fb vorhanden sind"
+                    .remove();
+                });
+            }
+            update_fb();
+            setInterval(update_fb, 5000)
+
+            //d3.select('#versuch')
+            //.selectAll('.balken')
+            //.data(testdata) // d: value im array, i: index im array
+            //.call(set_attr) // set value and color for all existing rects
+            //.enter()
+            //.append('rect')
+            //.call(set_attr); // set value and color for new rects
+
+            //d3.select('#versuch')
+            //.selectAll('.balken')
+            //.call(set_attr);
+
+        </script>
+    </body>
+
+</html>
