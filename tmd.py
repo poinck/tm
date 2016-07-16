@@ -242,14 +242,14 @@ def write_tm_sum():
         # new day, new line
         if DEBUG:
             print("new day")
-        f = open(TMSUM, "a")
-        f.write(tm_sum)
-        f.close()
+        sums.append(tm_sum)
     else:
         sums[-1] = tm_sum
-        f = open(TMSUM, "w")
-        f.writelines(sums)
-        f.close()
+
+    f = open(TMSUM, "w")
+    f.writelines(sums)
+    f.write("\n")
+    f.close()
 
 
 def read_tm_currentday():
