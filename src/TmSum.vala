@@ -81,7 +81,7 @@ class TmSum {
 				    		// stdout.printf("datum = %s, innen_min = %d, aussen_min = %d, innen_max = %d, aussen_max = %d, innen_avg = %d, aussen_avg = %d\n", sumEntry.datum, sumEntry.minTemperatur[INNEN], sumEntry.minTemperatur[AUSSEN], sumEntry.maxTemperatur[INNEN], sumEntry.maxTemperatur[AUSSEN], sumEntry.avgTemperatur[INNEN], sumEntry.avgTemperatur[AUSSEN]);
 				    		
 				    		// write summary to sumFile
-				    		sumFile.writeLine(sumEntry.datum + " 12:00:00," + sumEntry.minTemperatur[INNEN].to_string() + "," + sumEntry.minTemperatur[AUSSEN].to_string() + "," + sumEntry.maxTemperatur[INNEN].to_string() + "," + sumEntry.maxTemperatur[AUSSEN].to_string() + "," + sumEntry.avgTemperatur[INNEN].to_string() + "," + sumEntry.avgTemperatur[AUSSEN].to_string() + "\n");
+				    		sumFile.writeLine(sumEntry.datum + " 23:59:59," + sumEntry.minTemperatur[INNEN].to_string() + "," + sumEntry.minTemperatur[AUSSEN].to_string() + "," + sumEntry.maxTemperatur[INNEN].to_string() + "," + sumEntry.maxTemperatur[AUSSEN].to_string() + "," + sumEntry.avgTemperatur[INNEN].to_string() + "," + sumEntry.avgTemperatur[AUSSEN].to_string() + "\n");
 				    		
 				    		// FIXME  just for the fun with UNIX-timestamp
 				    		string[] tmpDate = sumEntry.datum.split("-");
