@@ -3,7 +3,9 @@
 ![Eclipse 2015](/tm/150320eclipse.png)
 
 **One wire sensor temperature measurement application suite written in bash, Vala and Javascript.**
-This readme explains how to install and use "temperature measurement". It consists of a server and client components. It uses the Linux-kernel modules "w1_gpio" and "w1_therm" to read the output of temperature sensors.
+It uses the Linux-kernel modules "w1_gpio" and "w1_therm" to read the output of temperature sensors. Further more at least one webfront is available.
+
+*ATTENTION: `tmd` and tmc-webui will be rewritten in the next weeks*
 
 ## Components
 
@@ -11,7 +13,8 @@ This readme explains how to install and use "temperature measurement". It consis
 **temperature measurement deamon (Temperaturmessdienst)**
 Following features are part of "tmd":
  - record one wire sensor readings
- - submit measurements to Open Weather Map (not working, api has changed)
+ - generate "tm_1440.csv", "tm_sum.csv" and daily files.
+ - rewrite using python
 
 **Status:** two seperate implementations in progress (bash and Vala)
 
@@ -30,15 +33,10 @@ command-line client which can read "tm.csv" and "tm_sum.csv" provided by "tmd" o
 
 ### tmc-webui
 **temperature measurement web-ui**
-Web frontends which show the file "tm_720.csv" in your browser
+Web frontends which show the file "tm_1440.csv" in your browser and others available through new implementation of `tmd`
 
-**Status:** two implementations ready to use
+**Status:** two implementations ready to use using existing "tm_720.csv"
 
-### tmc-gtk
-**temperature measurement gtk-client (Temperaturmessclient)**
-Gtk3 application which can read "tm.csv" directly and connect to a local or remote "tmd"
-
-**Status:** Mockup in planning
 
 ## Licenses
 **exceptions from CC0**
