@@ -1,0 +1,11 @@
+[Unit]
+Description=Temperaturmessdienst
+
+[Service]
+# defaults to Type=simple
+ExecStart=/home/ich/bin/tmd -i /sys/bus/w1/devices/10-000802bce280/w1_slave -o /sys/bus/w1/devices/10-000802c2f07e/w1_slave -a /home/ich/public_html/tm/tm.csv -c /home/ich/public_html/tm/tm_1.csv -d /home/ich/public_html/tm/tm_ -s /home/ich/public_html/tm/tm_sum.csv
+RestartSec=60s
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,9 @@
+#!/bin/bash
+
+today="$( date +%Y-%m-%d )"
+yesterday="$( date -d "yesterday" +%Y-%m-%d )"
+
+# debug
+#echo "$yesterday"
+
+/usr/bin/rsync "/home/ich/public_html/tm/tm_${today}.csv" "/home/ich/public_html/tm/tm_${yesterday}.csv" /home/ich/public_html/tm/tm_sum.csv /home/ich/public_html/tm/tm_1.csv user@yourdomain.tld:html/tm/

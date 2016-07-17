@@ -1,0 +1,6 @@
+[Unit]
+Description=TM sync
+
+[Service]
+Type=simple
+ExecStart=/root/bin/tm-sync
