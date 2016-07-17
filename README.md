@@ -13,7 +13,7 @@ It uses the Linux-kernel modules "w1_gpio" and "w1_therm" to read the output of 
 **temperature measurement deamon (Temperaturmessdienst)**
 Following features are part of "tmd":
  - record one wire sensor readings
- - generate "tm.csv", "tm_<date>.csv" and "tm_sum.csv".
+ - generate "tm.csv", daily "tm\_\<date\>.csv" and "tm\_sum.csv".
 
 **Status:** two seperate implementations in progress (bash and Vala)
 
