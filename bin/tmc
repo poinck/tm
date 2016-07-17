@@ -1,11 +1,13 @@
 #!/bin/bash
 
-TMD_URL="~/public_html/tm/tm_720.csv"
+today="$( date +%Y-%m-%d )"
+
+TMD_URL="~/public_html/tm/tm_${today}.csv"
 TMD_SUM_URL="~/public_html/tm/tm_sum.csv"
 if [[ -f ~/.tmcrc ]] ; then
     . ~/.tmcrc
     if [[ -n "$tmd_url" ]] ; then
-        TMD_URL="$tmd_url"
+        TMD_URL="${tmd_url}${today}.csv"
     fi
     if [[ -n "$tmd_sum_url" ]] ; then
         TMD_SUM_URL="$tmd_sum_url"
@@ -254,7 +256,7 @@ draw_graphic_line() {
 draw_week
 
 # draw last temperature changes
-echo "                          last 12 hours"
+echo "                              today"
 POS_DATE=1
 POS_TIME=2
 POS_INSIDE=3
