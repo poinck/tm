@@ -2,7 +2,7 @@
 
 ![Eclipse 2015](/tm/150320eclipse.png)
 
-**One wire sensor temperature measurement application suite written in bash, Vala and Javascript.**
+**One wire sensor temperature measurement application suite written in Python and Javascript.**
 It uses the Linux-kernel modules "w1_gpio" and "w1_therm" to read the output of temperature sensors. Further more at least one webfront is available.
 
 *ATTENTION: `tmd` and tmc-webui will be rewritten in the next weeks*
@@ -13,8 +13,7 @@ It uses the Linux-kernel modules "w1_gpio" and "w1_therm" to read the output of 
 **temperature measurement deamon (Temperaturmessdienst)**
 Following features are part of "tmd":
  - record one wire sensor readings
- - generate "tm_1440.csv", "tm_sum.csv" and daily files.
- - rewrite using python
+ - generate "tm.csv", "tm_<date>.csv" and "tm_sum.csv".
 
 **Status:** two seperate implementations in progress (bash and Vala)
 
@@ -33,7 +32,7 @@ command-line client which can read "tm.csv" and "tm_sum.csv" provided by "tmd" o
 
 ### tmc-webui
 **temperature measurement web-ui**
-Web frontends which show the file "tm_1440.csv" in your browser and others available through new implementation of `tmd`
+Web frontends which show the file "tm_720.csv" in your browser and others available through new implementation of `tmd`
 
 **Status:** two implementations ready to use using existing "tm_720.csv"
 
