@@ -41,28 +41,28 @@ def get_arguments():
     parser.add_argument('-c', '--currentcsv', help='path to tm_1.csv')
     parser.add_argument('-d', '--dailycsv', help='prefix path to tm_<date>.csv')
     parser.add_argument('-s', '--sumcsv', help='path to tm_sum.csv')
-    parser.add_argument('-r', '--reset', help='assume that no daily temperature files were written before (DANGER, NOT IMPLEMENTET YET)', action='count')
+    parser.add_argument('-r', '--reset', help='rewrite/reset daily temperature files and exit (DANGER)', action='count')
     args = vars(parser.parse_args())
 
     #print(args)
 
-    if args["verbose"] != None:
+    if args["verbose"] is not None:
         if args["verbose"] > 0:
             DEBUG = True
-    if args["reset"] != None:
+    if args["reset"] is not None:
         if args["reset"] > 0:
             RESET = True
-    if args["inside"] != None:
+    if args["inside"] is not None:
         TS_INSIDE = args["inside"]
-    if args["outside"] != None:
+    if args["outside"] is not None:
         TS_OUTSIDE = args["outside"]
-    if args["allcsv"] != None:
+    if args["allcsv"] is not None:
         TMLOG = args["allcsv"]
-    if args["currentcsv"] != None:
+    if args["currentcsv"] is not None:
         TM1 = args["currentcsv"]
-    if args["dailycsv"] != None:
+    if args["dailycsv"] is not None:
         TMDAILY_PREFIX = args["dailycsv"]
-    if args["sumcsv"] != None:
+    if args["sumcsv"] is not None:
         TMSUM = args["sumcsv"]
 
 
@@ -119,6 +119,59 @@ def read_w1():
 todays_t = []
 
 
+def rewrite_tm():
+    global todays_t
+
+    ts = []
+    sums = []
+    lastday = ""
+
+    fsum = open(TMSUM, "w")
+    fsum.write("datum,innen_min,aussen_min,innen_max,aussen_max,innen_avg,aussen_avg\n")
+    fsum.close()
+
+    with open(TMLOG, "r") as f:
+        for l in f:
+            if "datum,innen,aussen\n" not in l:
+                day = l.split(" ")[0]
+                if lastday != "":
+                    if day != lastday:
+                        fdaily = open(TMDAILY_PREFIX + lastday + ".csv", "w")
+                        fdaily.write("datum,innen,aussen\n")
+                        fdaily.writelines(ts)
+                        fdaily.close()
+
+                        tm_sum = calculate_sum()
+                        fsum = open(TMSUM, "a")
+                        fsum.write(tm_sum + "\n")
+                        fsum.close()
+
+                        ts = []
+                        todays_t = []
+                        if DEBUG:
+                            print("new file", TMDAILY_PREFIX + lastday + ".csv written")
+                        lastday = day
+                    else:
+                        ts.append(l)
+                        ll = l.split(",")
+                        todays_t.append({"tag": lastday, "datum": ll[0], "innen": ll[1], "aussen": ll[2]})
+                else:
+                    lastday = day
+
+    f.close()
+
+    fdaily = open(TMDAILY_PREFIX + lastday + ".csv", "w")
+    fdaily.write("datum,innen,aussen\n")
+    fdaily.writelines(ts)
+    fdaily.close()
+    if DEBUG:
+        print("new file", TMDAILY_PREFIX + lastday + ".csv written")
+    tm_sum = calculate_sum()
+    fsum = open(TMSUM, "a")
+    fsum.write(tm_sum + "\n")
+    fsum.close()
+
+
 def write_tm():
     global todays_t
 
@@ -141,7 +194,7 @@ def write_tm():
     f1.write(n + "," + ti + "," + to + "\n")
     f1.close()
 
-    todays_t.append({"tag":d,"datum":n,"innen":ti,"aussen":to})
+    todays_t.append({"tag": d, "datum": n, "innen": ti, "aussen": to})
 
 
 def write_tm_daily():
@@ -193,21 +246,8 @@ def clear_todays_t():
         todays_t = []
 
 
-def write_tm_sum():
-    today = datetime.datetime.today()
-    timeformat = "%Y-%m-%d %H:%M:%S"
-    n = today.strftime(timeformat)
-    d_timeformat = "%Y-%m-%d"
-    d = today.strftime(d_timeformat)
-
-    f = open(TMSUM, "r")
-    sums = f.readlines()
-    f.close()
-    lastsum = sums[-1]
-    lastday = lastsum.split(" ")[0]
-
-    if DEBUG:
-        print("lastsum:", lastsum, "lastday:", lastday)
+def calculate_sum():
+    tm_sum = None
 
     ti_min = int(todays_t[0]["innen"])
     ti_max = int(todays_t[0]["innen"])
@@ -233,23 +273,46 @@ def write_tm_sum():
     ti_avg = int(ti_avg / i)
     to_avg = int(to_avg / i)
 
-    tm_sum = n + "," + str(ti_min) + "," + str(to_min) + "," + str(ti_max) + "," + str(to_max) + "," + str(ti_avg) + "," + str(to_avg)
+    tm_sum = todays_t[-1]["datum"] + "," + str(ti_min) + "," + str(to_min) + "," \
+    + str(ti_max) + "," + str(to_max) + "," + str(ti_avg) + "," \
+    + str(to_avg)
+
+    return tm_sum
+
+
+def write_tm_sum():
+    today = datetime.datetime.today()
+    timeformat = "%Y-%m-%d %H:%M:%S"
+    n = today.strftime(timeformat)
+    d_timeformat = "%Y-%m-%d"
+    d = today.strftime(d_timeformat)
+
+    f = open(TMSUM, "r")
+    sums = f.readlines()
+    f.close()
+    lastsum = sums[-1]
+    lastday = lastsum.split(" ")[0]
 
     if DEBUG:
-        print("tm_sum:", tm_sum)
+        print("lastsum:", lastsum, "lastday:", lastday)
 
-    if lastday != d:
-        # new day, new line
+    tm_sum = calculate_sum()
+    if tm_sum is not None:
         if DEBUG:
-            print("new day")
-        sums.append(tm_sum)
-    else:
-        sums[-1] = tm_sum
+            print("tm_sum:", tm_sum)
 
-    f = open(TMSUM, "w")
-    f.writelines(sums)
-    f.write("\n")
-    f.close()
+        if lastday != d:
+            # new day, new line
+            if DEBUG:
+                print("new day")
+            sums.append(tm_sum)
+        else:
+            sums[-1] = tm_sum
+
+        f = open(TMSUM, "w")
+        f.writelines(sums)
+        f.write("\n")
+        f.close()
 
 
 def read_tm_currentday():
@@ -261,7 +324,7 @@ def read_tm_currentday():
 
     ts = []
     try:
-        f = open(TMDAILY_PREFIX + d, "r")
+        f = open(TMDAILY_PREFIX + d + ".csv", "r")
         ts = f.readlines()
         f.close()
     except:
@@ -269,8 +332,9 @@ def read_tm_currentday():
             print("problem with current day, is it monday?")
 
     for t in ts:
-        tt.split(",")
-        todays_t.append({"tag":d,"datum":tt[0],"innen":tt[1],"aussen":tt[2]})
+        if "datum,innen,aussen\n" not in t:
+            tt = t.split(",")
+            todays_t.append({"tag": d, "datum": tt[0], "innen": tt[1], "aussen": tt[2]})
 
 
 def main():
@@ -281,17 +345,20 @@ def main():
     if RESET:
         if DEBUG:
             print('will reset temperature files')
+        rewrite_tm()
+        sys.exit(0)
+
+    read_tm_currentday()
 
     while True:
-        read_tm_currentday()
-
         read_w1()
         if DEBUG:
             print("inside =", ti, " outside =", to)
 
         write_tm()
         if DEBUG:
-            print(todays_t[-1])
+            #print(todays_t[-1])
+            print("todays_t:", todays_t)
 
         write_tm_daily()
 
