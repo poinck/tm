@@ -12,8 +12,8 @@ DEBUG = False
 RESET = False
 
 # sensors
-TS_INSIDE = "tests/inside"
-TS_OUTSIDE = "tests/outside"
+TS_INSIDE = "tests/inside" # /sys/bus/w1/devices/10-000802bce280/w1_slave
+TS_OUTSIDE = "tests/outside" # /sys/bus/w1/devices/10-000802c2f07e/w1_slave
 
 # files
 TMLOG = "tests/tm.csv"
