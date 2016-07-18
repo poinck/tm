@@ -1,9 +1,0 @@
-[Unit]
-Description=Temperaturmessdienst
-
-[Service]
-# defaults to Type=simple
-ExecStart=/home/ich/bin/tmd
-
-[Install]
-WantedBy=multi-user.target
