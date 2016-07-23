@@ -1,12 +1,12 @@
-var tm_ep = "http://localhost"
+/**
+ * main javascript for temperature graphs
+ * - uses tmconfig.js
+ */
 
 var tmsum_count = 272;
 function get_x(d, i) {
     return i - tmsum_count + 272;
 }
-
-//var x = d3.scaleLinear().range([tmsum_count - 272, tmsum_count]);
-//var y = d3.scaleLinear().range([160, 80]);
 
 var avgline = d3.line()
 .x(function(d, i) { return get_x(d, i) + 1; })
@@ -20,8 +20,7 @@ var avgline = d3.line()
             r = 75 - t;
         }
 
-        // debug
-        console.log(r + ", t=" + (t / 1.5));
+        //DEBUG(r + ", t=" + (t / 1.5));
     }
     else {
         r = 75;
@@ -41,8 +40,7 @@ var maxarea = d3.area()
             r = 75 - t;
         }
 
-        // debug
-        console.log("area y=" + r + ", t=" + (t / 1.5));
+        //DEBUG("area y=" + r + ", t=" + (t / 1.5));
     }
     else {
         r = 75;
@@ -59,8 +57,7 @@ var maxarea = d3.area()
             r = 75 - t;
         }
 
-        // debug
-        console.log("area y1=" + r + ", t=" + (t / 1.5));
+        //DEBUG("area y1=" + r + ", t=" + (t / 1.5));
     }
     else {
         r = 75;
@@ -80,8 +77,7 @@ var minarea = d3.area()
             r = 75 - t;
         }
 
-        // debug
-        console.log("area_min y=" + r + ", t=" + (t / 1.5));
+        //DEBUG("area_min y=" + r + ", t=" + (t / 1.5));
     }
     else {
         r = 75;
@@ -98,8 +94,7 @@ var minarea = d3.area()
             r = 75 - t;
         }
 
-        // debug
-        console.log("area_min y1=" + r + ", t=" + (t / 1.5));
+        DEBUG("area_min y1=" + r + ", t=" + (t / 1.5));
     }
     else {
         r = 75;
@@ -109,10 +104,9 @@ var minarea = d3.area()
 
 function update_tmsum() {
     d3.csv(tm_ep + '/tm_sum.csv', function(tmsum) {
+        DEBUG(tmsum);
+        //DEBUG("tmsum.length" + tmsum.length);
 
-        // debug
-        console.log(tmsum);
-        console.log(tmsum.length);
         tmsum_count = tmsum.length;
 
         // max
