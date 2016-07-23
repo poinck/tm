@@ -23,7 +23,7 @@ div.tm {
     /*fill: rgba(255, 255, 255, 0.75); */
     fill: none;
     stroke: #884444;
-    stroke-dasharray: 1,1;
+    stroke-dasharray: 0.25,0.75;
     stroke-width: 0.25px;
 }
 
@@ -31,7 +31,7 @@ div.tm {
     /*fill: rgba(255, 255, 255, 0.75); */
     fill: none;
     stroke: #448844;
-    stroke-dasharray: 1,1;
+    stroke-dasharray: 0.25,0.75;
     stroke-width: 0.25px;
 }
 
@@ -39,7 +39,7 @@ div.tm {
     /*fill: rgba(255, 255, 255, 0.75); */
     fill: none;
     stroke: #444488;
-    stroke-dasharray: 1,1;
+    stroke-dasharray: 0.25,0.75;
     stroke-width: 0.25px;
 }
 
