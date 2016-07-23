@@ -1,6 +1,6 @@
 # Readme: temperature measurement
 
-![Eclipse 2015](/tm/150320eclipse.png)
+![Eclipse 2015](/150320eclipse.png)
 
 **One wire sensor temperature measurement application suite written in Python and Javascript.**
 It uses the Linux-kernel modules "w1_gpio" and "w1_therm" to read the output of temperature sensors. Further more at least one webfront is available.
@@ -21,7 +21,7 @@ Following features are part of "tmd":
 **temperature measurement cli-client (Temperaturmessclient)**
 command-line client which can read "tm.csv" and "tm_sum.csv" provided by "tmd" on a remote or local webserver. It can show the current temperature, the temperatures of the last 12 hours and by default the temperature-summary of the last 30 days.
 
-![tmc](/tm/tmc.png)
+![tmc](/tmc.png)
 
 **Options:**
 ```
