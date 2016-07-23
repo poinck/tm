@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <meta charset="utf-8">
+        <title>TM</title>
+
+        <!-- Style für die Anzeige am Bildschirm, alternativ wäre media="print" -->
+        <style media="screen">
+
+        </style>
+        <link rel="stylesheet" type="text/css" href="tm.css" />
+    </head>
+
+    <body>
+        <div id="sum" class="tm">
+            <svg id="tmsum" width="100%" style="positsion: relative; bottom: 0; height: auto;" preserveAspectRatio="xMaxYMax meet" viewbox="0 0 272 110" >
+                <g transform="translate(0,0)">
+                    <line x1="0" x2="272" y1="105" y2="105" class="tmb"></line>
+                    <line x1="0" x2="272" y1="90" y2="90" class="tmb"></line>
+                    <line x1="0" x2="272" y1="75" y2="75" class="tmnull"></line>
+                    <line x1="0" x2="272" y1="60" y2="60" class="tmg"></line>
+                    <line x1="0" x2="272" y1="45" y2="45" class="tmg"></line>
+                    <line x1="0" x2="272" y1="30" y2="30" class="tmr"></line>
+                    <line x1="0" x2="272" y1="15" y2="15" class="tmr"></line>
+                </g>
+
+            </svg>
+        </div>
+        <script src="https://d3js.org/d3.v4.min.js"></script>
+        <script src="https://d3js.org/d3-collection.v1.min.js"></script>
+        <script src="https://d3js.org/d3-dispatch.v1.min.js"></script>
+        <script src="https://d3js.org/d3-dsv.v1.min.js"></script>
+        <script src="https://d3js.org/d3-request.v1.min.js"></script>
+        <script src="tm.js"></script>
+    </body>
+</html>

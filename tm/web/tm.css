@@ -1,0 +1,63 @@
+body {
+    font-family: monospace;
+    background-color: #303030;
+}
+
+div.tm {
+    float: left;
+}
+
+#sum {
+    width: 75%;
+    margin: 4px;
+}
+
+.tmnull {
+    /*fill: rgba(255, 255, 255, 0.75); */
+    fill: none;
+    stroke: #888888;
+    stroke-width: 0.5px;
+}
+
+.tmr {
+    /*fill: rgba(255, 255, 255, 0.75); */
+    fill: none;
+    stroke: #884444;
+    stroke-dasharray: 1,1;
+    stroke-width: 0.25px;
+}
+
+.tmg {
+    /*fill: rgba(255, 255, 255, 0.75); */
+    fill: none;
+    stroke: #448844;
+    stroke-dasharray: 1,1;
+    stroke-width: 0.25px;
+}
+
+.tmb {
+    /*fill: rgba(255, 255, 255, 0.75); */
+    fill: none;
+    stroke: #444488;
+    stroke-dasharray: 1,1;
+    stroke-width: 0.25px;
+}
+
+.tsavgline {
+    /*fill: rgba(255, 255, 255, 0.75); */
+    fill: none;
+    stroke: #ffffff;
+    stroke-width: 1px;
+}
+
+.tsminarea {
+    fill: rgba(128, 128, 255, 0.5); */
+    stroke: none;
+    stroke-width: 1px;
+}
+
+.tsmaxarea {
+    fill: rgba(255, 128, 128, 0.5); */
+    stroke: none;
+    stroke-width: 1px;
+}
