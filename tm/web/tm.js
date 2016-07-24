@@ -4,108 +4,47 @@
  */
 
 var tmsum_count = 272;
+
+/**
+ * d:   current datum (not d["datum"] or not d.datum)
+ * i:   current index
+ */
 function get_x(d, i) {
     return i - tmsum_count + 272;
 }
 
-var avgline = d3.line()
-.x(function(d, i) { return get_x(d, i) + 1; })
-.y(function(d) {
-    if (isNaN(parseInt(d["aussen_avg"])) == false) {
-        t = (parseFloat(d["aussen_avg"]) / 1000) * 1.5;
-        if (t < 0) {
-            r = 75 - t;
-        }
-        else {
-            r = 75 - t;
-        }
+/**
+ * v:   e.g.: d["aussen_max"] or d.aussen_max
+ */
+function get_y(v) {
+    let r = 75;
+    if (isNaN(parseInt(v)) == false) {
+        let t = (parseFloat(v) / 1000) * 1.5;
+        r = 75 - t;
 
         //DEBUG(r + ", t=" + (t / 1.5));
     }
-    else {
-        r = 75;
-    }
     return r;
-});
+}
+
+var avgline = d3.line()
+.x( get_x )  // d and i will be appended as arguments
+.y( (d) => get_y(d.aussen_avg) );  // from d use d.aussen_avg as argument
 
 var maxarea = d3.area()
-.x(function(d, i) { return get_x(d, i) + 1; })
-.y(function(d) {
-    if (isNaN(parseInt(d["aussen_max"])) == false) {
-        t = (parseFloat(d["aussen_max"]) / 1000) * 1.5;
-        if (t < 0) {
-            r = 75 - t;
-        }
-        else {
-            r = 75 - t;
-        }
-
-        //DEBUG("area y=" + r + ", t=" + (t / 1.5));
-    }
-    else {
-        r = 75;
-    }
-    return r;
-})
-.y1(function(d) {
-    if (isNaN(parseInt(d["aussen_avg"])) == false) {
-        t = (parseFloat(d["aussen_avg"]) / 1000) * 1.5;
-        if (t < 0) {
-            r = 75 - t;
-        }
-        else {
-            r = 75 - t;
-        }
-
-        //DEBUG("area y1=" + r + ", t=" + (t / 1.5));
-    }
-    else {
-        r = 75;
-    }
-    return r;
-});
+.x( get_x )
+.y( (d) => get_y(d.aussen_max) )
+.y1( (d) => get_y(d.aussen_avg) );
 
 var minarea = d3.area()
-.x(function(d, i) { return get_x(d, i) + 1; })
-.y(function(d) {
-    if (isNaN(parseInt(d["aussen_min"])) == false) {
-        t = (parseFloat(d["aussen_min"]) / 1000) * 1.5;
-        if (t < 0) {
-            r = 75 - t;
-        }
-        else {
-            r = 75 - t;
-        }
-
-        //DEBUG("area_min y=" + r + ", t=" + (t / 1.5));
-    }
-    else {
-        r = 75;
-    }
-    return r;
-})
-.y1(function(d) {
-    if (isNaN(parseInt(d["aussen_avg"])) == false) {
-        t = (parseFloat(d["aussen_avg"]) / 1000) * 1.5;
-        if (t < 0) {
-            r = 75 - t;
-        }
-        else {
-            r = 75 - t;
-        }
-
-        //DEBUG("area_min y1=" + r + ", t=" + (t / 1.5));
-    }
-    else {
-        r = 75;
-    }
-    return r;
-});
+.x( get_x )
+.y( (d) => get_y(d.aussen_min) )
+.y1( (d) => get_y(d.aussen_avg) );
 
 function update_tmsum() {
     d3.csv(tm_ep + '/tm_sum.csv', function(tmsum) {
-        DEBUG(tmsum);
-        //DEBUG("tmsum.length" + tmsum.length);
+        //DEBUG(tmsum);
+        DEBUG("tmsum.length = " + tmsum.length);
 
         tmsum_count = tmsum.length;
 
