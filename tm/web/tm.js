@@ -94,7 +94,7 @@ var minarea = d3.area()
             r = 75 - t;
         }
 
-        DEBUG("area_min y1=" + r + ", t=" + (t / 1.5));
+        //DEBUG("area_min y1=" + r + ", t=" + (t / 1.5));
     }
     else {
         r = 75;
