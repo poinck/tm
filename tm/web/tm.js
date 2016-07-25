@@ -1,6 +1,8 @@
 /**
  * main javascript for temperature graphs
  * - uses tmconfig.js
+ *
+ * test on resulotion: 725×480
  */
 
 var tmsum_count = 272;
@@ -84,5 +86,57 @@ function update_tmsum() {
     });
 }
 
+function get_t_x(d, i) {
+    return i / 1440 * 116;
+}
+
+var tline = d3.line()
+.x( get_t_x )
+.y( (d) => get_y(d.aussen) );
+
+var tarea = d3.area()
+.x( get_t_x )
+.y( (d) => get_y(d.aussen) )
+.y1( 75 );
+
+function update_tmtoday() {
+    let timeformat = d3.timeFormat("%Y-%m-%d");
+    let d = new Date();
+    let n = timeformat(d);
+
+    d3.csv(tm_ep + '/tm_' + n + '.csv', function(tmtoday) {
+        DEBUG(tmtoday);
+
+        tmtoday_count = tmtoday.length;
+        DEBUG("tmtoday_count = " + tmtoday_count);
+
+        // area
+        d3.select("#today").select("#tmtoday").selectAll('.ttarea').remove()
+
+        let a_t_today = d3.select("#today").select("#tmtoday").select('g');
+
+        a_t_today
+        .append('path')
+        .datum(tmtoday)
+        .classed('ttarea', true)
+        .attr('d', tarea);
+
+        // area
+        d3.select("#today").select("#tmtoday").selectAll('.ttline').remove()
+
+        var l_t_today = d3.select("#today").select("#tmtoday").select('g');
+
+        l_t_today
+        .append('path')
+        .datum(tmtoday)
+        .classed('ttline', true)
+        .attr('d', tline);
+    });
+}
+
+
 update_tmsum();
 setInterval(update_tmsum, 600000); // every 10 minutes
+update_tmtoday();
+setInterval(update_tmtoday, 600000);
+

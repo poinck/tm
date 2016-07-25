@@ -9,8 +9,15 @@ div.tm {
 }
 
 #sum {
-    width: 75%;
+    width: 68%;
     margin: 4px;
+    margin-right: 0px;
+}
+
+#today {
+    width: 29%;
+    margin: 4px;
+    /*margin-right: 0px;*/
 }
 
 .tmnull {
@@ -52,13 +59,25 @@ div.tm {
 }
 
 .tsminarea {
-    fill: rgba(128, 128, 255, 0.5); */
+    fill: rgba(128, 128, 255, 0.5);
     stroke: none;
     stroke-width: 1px;
 }
 
 .tsmaxarea {
-    fill: rgba(255, 128, 128, 0.5); */
+    fill: rgba(255, 128, 128, 0.5);
     stroke: none;
+    stroke-width: 1px;
+}
+
+.ttarea {
+    fill: rgba(128, 255, 255, 0.1);
+    stroke: none;
+    stroke-width: 1px;
+}
+
+.ttline {
+    fill: none;
+    stroke: #00ffff;
     stroke-width: 1px;
 }

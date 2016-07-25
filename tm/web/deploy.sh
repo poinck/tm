@@ -11,4 +11,4 @@ cp /home/poinck/gits/tm/tm/web/* /var/www/localhost/htdocs/.
 chmod a+r /var/www/localhost/htdocs/index.html
 chmod a+r /var/www/localhost/htdocs/tmconfig.js
 chmod a+r /var/www/localhost/htdocs/tm.js
-chmod a+r /var/www/localhost/htdocs/tm_sum.csv
+chmod a+r /var/www/localhost/htdocs/tm_*.csv

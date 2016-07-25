@@ -2,4 +2,5 @@
 *.sw*
 tm/web/get_tmcsv.sh
 tm/web/tm_sum.csv
+tm/web/tm_*.csv
 tests
