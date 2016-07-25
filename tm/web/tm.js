@@ -2,7 +2,8 @@
  * main javascript for temperature graphs
  * - uses tmconfig.js
  *
- * test on resulotion: 725×480
+ * test on resolution: 725×480 (for official Raspberry Pi display with
+ * place for side panel)
  */
 
 var tmsum_count = 272;
@@ -46,9 +47,9 @@ var minarea = d3.area()
 function update_tmsum() {
     d3.csv(tm_ep + '/tm_sum.csv', function(tmsum) {
         //DEBUG(tmsum);
-        DEBUG("tmsum.length = " + tmsum.length);
-
+        //
         tmsum_count = tmsum.length;
+        DEBUG("tmsum_count = " + tmsum_count);
 
         // max
         d3.select("#sum").select("#tmsum").selectAll('.tsmaxarea').remove()
@@ -105,7 +106,7 @@ function update_tmtoday() {
     let n = timeformat(d);
 
     d3.csv(tm_ep + '/tm_' + n + '.csv', function(tmtoday) {
-        DEBUG(tmtoday);
+        //DEBUG(tmtoday);
 
         tmtoday_count = tmtoday.length;
         DEBUG("tmtoday_count = " + tmtoday_count);
@@ -124,7 +125,7 @@ function update_tmtoday() {
         // area
         d3.select("#today").select("#tmtoday").selectAll('.ttline').remove()
 
-        var l_t_today = d3.select("#today").select("#tmtoday").select('g');
+        let l_t_today = d3.select("#today").select("#tmtoday").select('g');
 
         l_t_today
         .append('path')
