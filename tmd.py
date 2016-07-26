@@ -83,7 +83,8 @@ def read_t(ts):
         if DEBUG:
             print(tt)
         if bad_t not in tt:
-            ttt = tt
+            if int(tt[0]) > -85000:
+                ttt = tt
     f.close()
 
     return ttt
