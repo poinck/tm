@@ -105,6 +105,8 @@ function update_tmtoday() {
     let d = new Date();
     let n = timeformat(d);
 
+    DEBUG("today is " + n)
+
     d3.csv(tm_ep + '/tm_' + n + '.csv', function(tmtoday) {
         //DEBUG(tmtoday);
 

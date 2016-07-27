@@ -81,3 +81,13 @@ div.tm {
     stroke: #00ffff;
     stroke-width: 1px;
 }
+
+.sumtoday {
+    fill: #303030;
+    fill: #00ffff;
+    font-weight: bold;
+}
+
+#tmdatetoday {
+    fill: rgba(0, 255, 255, 0.75);
+}
