@@ -6,6 +6,21 @@
  * place for side panel)
  */
 
+de_DE = {
+    "decimal": ",",
+    "thousands": ".",
+    "grouping": [3],
+    "currency": ["€", ""],
+    "dateTime": "%a %b %e %X %Y",
+    "date": "%d.%m.%Y",
+    "time": "%H:%M:%S",
+    "periods": ["AM", "PM"],
+    "days": ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"],
+    "shortDays": ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"],
+    "months": ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"],
+    "shortMonths": ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"]
+}
+
 var tmsum_count = 272;
 
 /**
@@ -47,7 +62,7 @@ var minarea = d3.area()
 function update_tmsum() {
     d3.csv(tm_ep + '/tm_sum.csv', function(tmsum) {
         //DEBUG(tmsum);
-        //
+
         tmsum_count = tmsum.length;
         DEBUG("tmsum_count = " + tmsum_count);
 
@@ -83,6 +98,17 @@ function update_tmsum() {
         .datum(tmsum)
         .classed('tsavgline', true)
         .attr('d', avgline);
+
+        // set date
+        current_date = tmsum[tmsum_count - 1].datum
+        DEBUG("datum = " + current_date)
+        let timeformat = d3.timeFormat("%Y-%m-%d %H:%M:%S");
+        let timeparser = d3.timeParse(timeformat);
+        let n = timeparser(current_date);
+        let DE = d3.timeFormatLocale(de_DE);
+        let dateformat = DE.format("%a, %-d.%-m.");
+        let nn = dateformat(n);
+        document.getElementById('tmdatetodaytext').innerHTML = nn;
 
     });
 }
