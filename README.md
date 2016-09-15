@@ -1,9 +1,9 @@
 # Readme: temperature measurement
 
 **One wire sensor temperature measurement application suite written in Python, Bash and Javascript.**
-It uses the Linux-kernel modules "w1_gpio" and "w1_therm" to read the output of temperature sensors. Further more at least one webfront is available.
+It uses the Linux-kernel modules "w1_gpio" and "w1_therm" to read the output of temperature sensors.
 
-*NEWS: `tmd` was rewiritten in Python*
+*NEWS: `tmd` was rewritten in Python*
 
 ## Components
 
@@ -31,7 +31,7 @@ command-line client which can read "tm.csv" and "tm_sum.csv" provided by "tmd" o
 ### tm/web
 **temperature measurement web-ui**
 
-**Status:** in progress, possible deprication, if a nice dashboard can be implements with use of `dzen2` or `ocelot-dzen`
+**Status:** in progress, possible deprication, if a desktop-dashboard can be implemented with use of `dzen2` or `ocelot-dzen`
 
 
 ## License
