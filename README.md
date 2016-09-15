@@ -34,7 +34,7 @@ command-line client which can read "tm.csv" and "tm_sum.csv" provided by "tmd" o
 **Status:** in progress, possible deprication, if a nice dashboard can be implements with use of `dzen2` or `ocelot-dzen`
 
 
-## Licenses
+## License
 
 Everyting is **CC0**
 
