@@ -1,11 +1,9 @@
 # Readme: temperature measurement
 
-![Eclipse 2015](/150320eclipse.png)
+**One wire sensor temperature measurement application suite written in Python, Bash and Javascript.**
+It uses the Linux-kernel modules "w1_gpio" and "w1_therm" to read the output of temperature sensors.
 
-**One wire sensor temperature measurement application suite written in Python and Javascript.**
-It uses the Linux-kernel modules "w1_gpio" and "w1_therm" to read the output of temperature sensors. Further more at least one webfront is available.
-
-*ATTENTION: `tmd` and tmc-webui will be rewritten in the next weeks*
+*NEWS: `tmd` was rewritten in Python*
 
 ## Components
 
@@ -15,7 +13,7 @@ Following features are part of "tmd":
  - record one wire sensor readings
  - generate "tm.csv", daily "tm\_\<date\>.csv" and "tm\_sum.csv".
 
-**Status:** two seperate implementations in progress (bash and Vala)
+**Status:** stable
 
 ### tmc
 **temperature measurement cli-client (Temperaturmessclient)**
@@ -28,16 +26,22 @@ command-line client which can read "tm.csv" and "tm_sum.csv" provided by "tmd" o
 -d <days>    adjust days of summary, last 30 days
 ```
 
-**Status:** implementation in progress
+**Status:** will be depricated, new implementation will use `dzen2` or `ocelot-dzen`
 
-### tmc-webui
+### tm/web
 **temperature measurement web-ui**
-Web frontends which show the file "tm_720.csv" in your browser and others available through new implementation of `tmd`
 
-**Status:** two implementations ready to use using existing "tm_720.csv"
+**Status:** in progress, possible deprication, if a desktop-dashboard can be implemented with use of `dzen2` or `ocelot-dzen`
 
 
+## License
+
+Everyting is **CC0**
+
+<<<<<<< HEAD
 ## Licenses
 **exceptions from CC0**
 - tm/favicon.ico: CC-BY-SA 3.0, by Gnome, https://github.com/GNOME/gnome-icon-theme-symbolic/blob/master/gnome/scalable/status/weather-few-clouds-symbolic.svg
 
+=======
+>>>>>>> c18c86b1db2a459f0968be0adf1ce5ba9136b077
