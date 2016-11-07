@@ -40,3 +40,4 @@ Web frontends which show the file "tm_720.csv" in your browser and others availa
 ## Licenses
 **exceptions from CC0**
 - tm/favicon.ico: CC-BY-SA 3.0, by Gnome, https://github.com/GNOME/gnome-icon-theme-symbolic/blob/master/gnome/scalable/status/weather-few-clouds-symbolic.svg
+
