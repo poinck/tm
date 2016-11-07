@@ -38,10 +38,3 @@ command-line client which can read "tm.csv" and "tm_sum.csv" provided by "tmd" o
 
 Everyting is **CC0**
 
-<<<<<<< HEAD
-## Licenses
-**exceptions from CC0**
-- tm/favicon.ico: CC-BY-SA 3.0, by Gnome, https://github.com/GNOME/gnome-icon-theme-symbolic/blob/master/gnome/scalable/status/weather-few-clouds-symbolic.svg
-
-=======
->>>>>>> c18c86b1db2a459f0968be0adf1ce5ba9136b077
