@@ -5,7 +5,7 @@
 #include <OneWire.h>
 #include <DallasTemperature.h>
 
-#define ONE_WIRE_BUS 3
+#define ONE_WIRE_BUS 6
 
 OneWire ourWire(ONE_WIRE_BUS);
 DallasTemperature sensors(&ourWire);
