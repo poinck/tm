@@ -10,6 +10,7 @@
 **************************************************************************************/
 
 #include <LiquidCrystal.h>
+#include <EEPROM.h>
 
 LiquidCrystal lcd(8, 9, 4, 5, 6, 7);           // select the pins used on the LCD panel
 
@@ -50,45 +51,94 @@ int read_LCD_buttons(){               // read the buttons
     return btnNONE;                // when all others fail, return this.
 }
 
-void setup(){
+int ee_address = 0;
+
+struct lcdtext {
+    char s[14];
+};
+
+void setup() {
    lcd.begin(16, 2);               // start the library
    lcd.setCursor(0,0);             // set the LCD cursor   position
-   lcd.print("Push the buttons");  // print a simple message on the LCD
+   lcd.print("t:push buttons");  // print a simple message on the LCD
+
+    Serial.begin(9600);
+    delay(1000);
+    Serial.println("type to print on LCD");
+
+    String ee_text = "";
+
+    lcdtext lt_get;
+    EEPROM.get(ee_address, lt_get);
+    Serial.println("current text on EEPROM is");
+    Serial.print("t:");
+    Serial.println(lt_get.s);
+    lcd.setCursor(2,0);
+    lcd.print("              ");
+    lcd.setCursor(2,0);
+    lcd.print(lt_get.s);
+
+    Serial.println("type to print something else on LCD");
 }
+
+int incomingByte = 0;
+String incoming_text = "";
 
 void loop(){
    lcd.setCursor(9,1);             // move cursor to second line "1" and 9 spaces over
+    lcd.print("s:");
+    lcd.setCursor(11,1);
    lcd.print(millis()/1000);       // display seconds elapsed since power-up
 
    lcd.setCursor(0,1);             // move to the begining of the second line
    lcd_key = read_LCD_buttons();   // read the buttons
 
    switch (lcd_key){               // depending on which button was pushed, we perform an action
-
        case btnRIGHT:{             //  push button "RIGHT" and show the word on the screen
-            lcd.print("RIGHT ");
+            lcd.print("b:R");
             break;
        }
        case btnLEFT:{
-             lcd.print("LEFT   "); //  push button "LEFT" and show the word on the screen
+             lcd.print("b:L"); //  push button "LEFT" and show the word on the screen
              break;
        }
        case btnUP:{
-             lcd.print("UP    ");  //  push button "UP" and show the word on the screen
+             lcd.print("b:U");  //  push button "UP" and show the word on the screen
              break;
        }
        case btnDOWN:{
-             lcd.print("DOWN  ");  //  push button "DOWN" and show the word on the screen
+             lcd.print("b:D");  //  push button "DOWN" and show the word on the screen
              break;
        }
        case btnSELECT:{
-             lcd.print("SELECT");  //  push button "SELECT" and show the word on the screen
+             lcd.print("b:S");  //  push button "SELECT" and show the word on the screen
              break;
        }
        case btnNONE:{
-             lcd.print("NONE  ");  //  No action  will show "None" on the screen
+             lcd.print("b:N");  //  No action  will show "None" on the screen
              break;
        }
    }
+
+    if (Serial.available() > 0) {
+        //incomingByte = Serial.read();
+        incoming_text = Serial.readString();
+
+        // say what you got:
+        Serial.print("t:");
+        //Serial.println(incomingByte, DEC);
+        Serial.println(incoming_text);
+        lcd.setCursor(2,0);
+        lcd.print("              ");
+        lcd.setCursor(2,0);
+        lcd.print(incoming_text);
+
+        char c_text[14];
+        lcdtext lt;
+        incoming_text.toCharArray(lt.s, 14);
+        //lt.s = c_text;
+
+        EEPROM.put(ee_address, lt);
+    }
 }
 
