@@ -50,6 +50,10 @@ void identify_sensors(const byte* addr_part) {
         Serial.print(", outside");
         st = "outside";
     }
+    else {
+        Serial.print("");
+        st = "unknown";
+    }
 
     if (s1 == "") {
         s1 = st;
