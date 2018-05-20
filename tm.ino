@@ -1,58 +1,47 @@
 /*
- * tm, by poinck, CC0
+ * tm (temperature measurement), by poinck, CC0
+ *
+ * lcd code used from Mark Bramwell (100700)
+ * - modified (180520)
  */
+
+#include <LiquidCrystal.h>
+#include <EEPROM.h>
+
+LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
+
+// define some values used by the panel and buttons
+int lcd_key = 0;
+int adc_key_in = 0;
+
+#define btnRIGHT  0
+#define btnUP     1
+#define btnDOWN   2
+#define btnLEFT   3
+#define btnSELECT 4
+#define btnNONE   5
 
 #include <OneWire.h>
 #include <DallasTemperature.h>
 
-#define ONE_WIRE_BUS 6
+#define ONE_WIRE_BUS 2
 
 OneWire ourWire(ONE_WIRE_BUS);
 DallasTemperature sensors(&ourWire);
 String s1 = "";
 String s2 = "";
-
-void setup() {
-    Serial.begin(9600);
-    delay(1000);
-    Serial.println("start tm with serial 9600 ..");
-    sensors.begin();
-    Serial.println(" - get dallas sensors ..");
-    get_sensors();
-    Serial.println(" - set dallas resolution ..");
-    sensors.setResolution(9);
-    Serial.println(".. tm ready");
-    Serial.println();
-}
-
-void loop() {
-    sensors.requestTemperatures();
-
-    Serial.print(s1);
-    Serial.print(": ");
-    Serial.print(sensors.getTempCByIndex(0));
-    Serial.println();
-    Serial.print(s2);
-    Serial.print(": ");
-    Serial.print(sensors.getTempCByIndex(1));
-    Serial.println();
-
-    delay(15000);
-}
+int t1 = 0;
+int t2 = 0;
 
 void identify_sensors(const byte* addr_part) {
     String st;
     if (addr_part == 0xF2) {
         Serial.print(", inside");
-        st = "inside";
+        st = "i";
     }
     else if (addr_part == 0xD1) {
         Serial.print(", outside");
-        st = "outside";
-    }
-    else {
-        Serial.print("");
-        st = "unknown";
+        st = "o";
     }
 
     if (s1 == "") {
@@ -94,3 +83,159 @@ void get_sensors(void) {
 
     return;
 }
+
+int read_lcd_buttons() {
+    adc_key_in = analogRead(0);
+
+    if (adc_key_in > 1000) return btnNONE;
+
+    // button thresholds
+    if (adc_key_in < 50)   return btnRIGHT;
+    if (adc_key_in < 195)  return btnUP;
+    if (adc_key_in < 380)  return btnDOWN;
+    if (adc_key_in < 555)  return btnLEFT;
+    if (adc_key_in < 790)  return btnSELECT;
+
+    return btnNONE;
+}
+
+int ee_address = 0;
+
+struct lcdtext {
+    char s[14];
+};
+
+void setup() {
+    // initialize the LCD lib
+    lcd.begin(16, 2);
+    lcd.setCursor(0,0);
+    lcd.print("t:push buttons");
+
+    Serial.begin(9600);
+    delay(1000);
+
+    Serial.println("start tm with serial 9600 ..");
+    sensors.begin();
+    Serial.println(" - get dallas sensors ..");
+    get_sensors();
+    Serial.println(" - set dallas resolution ..");
+    sensors.setResolution(9);
+    Serial.println(".. tm ready");
+    Serial.println();
+
+    Serial.println("type to print on LCD");
+
+    String ee_text = "";
+
+    lcdtext lt_get;
+    EEPROM.get(ee_address, lt_get);
+    Serial.println("current text on EEPROM is");
+    Serial.print("t:");
+    Serial.println(lt_get.s);
+    lcd.setCursor(2,0);
+    lcd.print("              ");
+    lcd.setCursor(2,0);
+    lcd.print(lt_get.s);
+
+    Serial.println("type to print something else on LCD");
+}
+
+int incomingByte = 0;
+String incoming_text = "";
+int next_interval = 0;
+int seconds_past = 0;
+int next_counter = 0;
+
+void loop(){
+    lcd.setCursor(4,1);
+    lcd.print("i:");
+    lcd.setCursor(10,1);
+    lcd.print("o:");
+    seconds_past = millis()/1000;
+
+    lcd.setCursor(0,1);
+    lcd_key = read_lcd_buttons();
+
+    switch (lcd_key){
+        case btnRIGHT: {
+             lcd.print("b:R");
+             break;
+        }
+        case btnLEFT: {
+              lcd.print("b:L");
+              break;
+        }
+        case btnUP: {
+              lcd.print("b:U");
+              break;
+        }
+        case btnDOWN: {
+              lcd.print("b:D");
+              break;
+        }
+        case btnSELECT: {
+              lcd.print("b:S");
+              break;
+        }
+        case btnNONE: {
+              lcd.print("b:N");
+              break;
+        }
+    }
+
+    if (Serial.available() > 0) {
+        //incomingByte = Serial.read();
+        incoming_text = Serial.readString();
+
+        // say what you got:
+        Serial.print("t:");
+        //Serial.println(incomingByte, DEC);
+        Serial.println(incoming_text);
+        lcd.setCursor(2,0);
+        lcd.print("              ");
+        lcd.setCursor(2,0);
+        lcd.print(incoming_text);
+
+        char c_text[14];
+        lcdtext lt;
+        incoming_text.toCharArray(lt.s, 14);
+        //lt.s = c_text;
+
+        EEPROM.put(ee_address, lt);
+    }
+
+    if (next_interval < seconds_past) {
+        next_interval = next_interval + 60;
+        sensors.requestTemperatures();
+
+        Serial.print("s:");
+        Serial.print(seconds_past);
+        Serial.print(" ");
+        Serial.print(s1);
+        Serial.print(":");
+        t1 = (int) sensors.getTempCByIndex(0);
+        Serial.print(t1);
+        lcd.setCursor(6,1);
+        lcd.print("   ");
+        lcd.setCursor(6,1);
+        lcd.print(t1);
+        Serial.print(" ");
+        Serial.print(s2);
+        Serial.print(":");
+        t2 = (int) sensors.getTempCByIndex(1);
+        Serial.print(t2);
+        lcd.setCursor(12,1);
+        lcd.print("   ");
+        lcd.setCursor(12,1);
+        lcd.print(t2);
+        Serial.println();
+    }
+
+    next_counter = (int) ((next_interval - seconds_past) / 10) + 1;
+    lcd.setCursor(13,0);
+    lcd.print("d:");
+    lcd.print(next_counter);
+
+    delay(1000);
+}
+
