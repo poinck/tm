@@ -8,16 +8,21 @@
 #include <LiquidCrystal.h>
 #include <EEPROM.h>
 
+#define LCD_BACKLIGHT 10
+int lcd_backlight_stdlevel = 16;
+int lcd_backlight_level = lcd_backlight_stdlevel;
+int lcd_backlight_cycle = 0;
+
 LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
 
 // define some values used by the panel and buttons
 int lcd_key = 0;
 int adc_key_in = 0;
 
-#define btnRIGHT  0
+#define button_right 0
 #define btnUP     1
 #define btnDOWN   2
-#define btnLEFT   3
+#define button_left 3
 #define btnSELECT 4
 #define btnNONE   5
 
@@ -90,10 +95,10 @@ int read_lcd_buttons() {
     if (adc_key_in > 1000) return btnNONE;
 
     // button thresholds
-    if (adc_key_in < 50)   return btnRIGHT;
+    if (adc_key_in < 50)   return button_right;
     if (adc_key_in < 195)  return btnUP;
     if (adc_key_in < 380)  return btnDOWN;
-    if (adc_key_in < 555)  return btnLEFT;
+    if (adc_key_in < 555)  return button_left;
     if (adc_key_in < 790)  return btnSELECT;
 
     return btnNONE;
@@ -123,8 +128,6 @@ void setup() {
     Serial.println(".. tm ready");
     Serial.println();
 
-    Serial.println("type to print on LCD");
-
     String ee_text = "";
 
     lcdtext lt_get;
@@ -137,12 +140,16 @@ void setup() {
     lcd.setCursor(2,0);
     lcd.print(lt_get.s);
 
-    Serial.println("type to print something else on LCD");
+    Serial.println("type to print on LCD");
+
+    // by default, switch off lcd backlight
+    analogWrite(LCD_BACKLIGHT, lcd_backlight_stdlevel);
 }
 
 int incomingByte = 0;
 String incoming_text = "";
 int next_interval = 0;
+int nbl_interval = 0; // next backlight interval
 int seconds_past = 0;
 int next_counter = 0;
 
@@ -157,29 +164,55 @@ void loop(){
     lcd_key = read_lcd_buttons();
 
     switch (lcd_key){
-        case btnRIGHT: {
-             lcd.print("b:R");
-             break;
+        case button_right: {
+            // cycle through LCD backlight levels (step 64)
+            lcd_backlight_cycle = lcd_backlight_cycle + 1;
+            if (lcd_backlight_cycle > 4) {
+                lcd_backlight_cycle = 0;
+            }
+            lcd_backlight_level = lcd_backlight_cycle * 64;
+            //if (lcd_backlight_level < lcd_backlight_stdlevel) {
+            //    lcd_backlight_cycle = 1;
+            //    lcd_backlight_level = 64;
+            //}
+            if (lcd_backlight_level == 256) {
+                lcd_backlight_level = 255;
+            }
+            analogWrite(LCD_BACKLIGHT, lcd_backlight_level);
+            nbl_interval = seconds_past + 60;
+            Serial.print("lcd_backlight_level=");
+            Serial.println(lcd_backlight_level);
+
+            lcd.print("l:");
+            lcd.print(lcd_backlight_cycle);
+
+            break;
         }
-        case btnLEFT: {
-              lcd.print("b:L");
-              break;
+        case button_left: {
+            Serial.println("switch LCD backlight off");
+            lcd_backlight_level = 0;
+            lcd_backlight_cycle = 0;
+            analogWrite(LCD_BACKLIGHT, lcd_backlight_level);
+
+            lcd.print("l:0");
+
+            break;
         }
         case btnUP: {
-              lcd.print("b:U");
-              break;
+            lcd.print("b:U");
+            break;
         }
         case btnDOWN: {
-              lcd.print("b:D");
-              break;
+            lcd.print("b:D");
+            break;
         }
         case btnSELECT: {
-              lcd.print("b:S");
-              break;
+            lcd.print("b:S");
+            break;
         }
         case btnNONE: {
-              lcd.print("b:N");
-              break;
+            lcd.print("b:N");
+            break;
         }
     }
 
@@ -204,6 +237,7 @@ void loop(){
         EEPROM.put(ee_address, lt);
     }
 
+    // temperature measurement every minute
     if (next_interval < seconds_past) {
         next_interval = next_interval + 60;
         sensors.requestTemperatures();
@@ -229,6 +263,16 @@ void loop(){
         lcd.setCursor(12,1);
         lcd.print(t2);
         Serial.println();
+    }
+
+    // reset lcd backlight to std after 1 minute unless explicitly switched off
+    if (lcd_backlight_level != 0) {
+        if (lcd_backlight_level != lcd_backlight_stdlevel && nbl_interval < seconds_past) {
+            Serial.println("setting LCD backlight standard level");
+            lcd_backlight_level = lcd_backlight_stdlevel;
+            lcd_backlight_cycle = 0;
+            analogWrite(LCD_BACKLIGHT, lcd_backlight_stdlevel);
+        }
     }
 
     next_counter = (int) ((next_interval - seconds_past) / 10) + 1;
